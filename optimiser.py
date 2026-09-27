@@ -13,7 +13,7 @@ from __future__ import annotations
 import argparse
 import math
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 from load_data import (
@@ -28,8 +28,6 @@ from load_data import (
 
 # --- tuning constants -------------------------------------------------------
 
-LEVEL_CURVE = 1.0  # >1 punishes partial levels harder for high level_weight
-
 # How much more a high-weight skill matters than a low-weight one. At 1.0 a
 # weight-2 skill sitting at level 1 outscores a further level of a weight-4
 # skill, which fills sets with shallow filler; raising it buys depth in the
@@ -37,12 +35,14 @@ LEVEL_CURVE = 1.0  # >1 punishes partial levels harder for high level_weight
 # gets extreme enough that mid-weight skills start losing their depth again.
 WEIGHT_EXPONENT = 2.0
 
-# How sharply level_weight drives the value of each extra level. The share of a
-# skill's value that sits in its levels is (level_weight / 5) ** this. Holding it
-# just above WEIGHT_EXPONENT is what makes a point in a 1/4 skill beat a point in
-# a 4/1 one while keeping 2/3 and 3/2 roughly even; at exactly WEIGHT_EXPONENT
-# those first two come out equal instead.
-LEVEL_WEIGHT_EXPONENT = 2.2
+# What each level after the first is worth, as a multiple of the first level,
+# at level_weight 5; it falls linearly to nothing at level_weight 0. Above 1, so
+# a skill you want levelled pulls toward finishing it rather than toward merely
+# having it. A level's value never depends on the skill's max level: splitting
+# a fixed total across the levels made each level of a 5-level skill worth less
+# than one of a 3-level skill, so a weight-3 skill's first level outbid a
+# weight-4 one's next level for the same jewel slot.
+TOP_LEVEL_VALUE = 1.5
 
 # Whole-set defence is worth about as much as one skill of this weight. It is
 # raised to WEIGHT_EXPONENT alongside skills so the balance holds if that moves.
@@ -70,6 +70,9 @@ TALISMAN_ARMOUR_SLOT_SIZE = 1
 BONUS_PROGRESS_CREDIT = 0.8
 
 PIECE_TYPES = ("head", "chest", "arms", "waist", "legs")
+# The pins key for a fixed talisman. It rides in the same dict as the armour
+# pins so profiles, the CLI and the GUI carry it without a parallel setting.
+TALISMAN_SLOT = "talisman"
 
 # Rough share of a run spent in the armour beam search, the rest going to
 # evaluating the final pool (talismans and decorations for each set). Only
@@ -130,13 +133,11 @@ class Scoring:
         self,
         skills: list[Skill],
         weight_exponent: float = WEIGHT_EXPONENT,
-        level_weight_exponent: float = LEVEL_WEIGHT_EXPONENT,
-        level_curve: float = LEVEL_CURVE,
+        top_level_value: float = TOP_LEVEL_VALUE,
         defense_equiv_weight: float = DEFENSE_EQUIV_WEIGHT,
     ) -> None:
         self.weight_exponent = weight_exponent
-        self.level_weight_exponent = level_weight_exponent
-        self.level_curve = level_curve
+        self.top_level_value = top_level_value
         self.defense_points = defense_equiv_weight**weight_exponent
         self.by_name = {s.name: s for s in skills}
         self.relevant = sorted(s.name for s in skills if s.weight != 0)
@@ -166,18 +167,14 @@ class Scoring:
             value = 0.0
         else:
             capped = min(level, skill.max_level)
-            # Share of the skill's value carried by its levels rather than by
-            # merely having it. Raising level_weight to an exponent above
-            # WEIGHT_EXPONENT makes each point worth more in skills you want
-            # levelled than in merely high-weight ones.
-            alpha = max(0.0, min(1.0, skill.level_weight / 5.0))
-            alpha **= self.level_weight_exponent
-            progress = (capped / skill.max_level) ** self.level_curve
+            # The first level is worth the skill's importance; each one after
+            # it a share of that set by level_weight (see TOP_LEVEL_VALUE).
+            per_level = self.top_level_value * max(0.0, min(1.0, skill.level_weight / 5.0))
             # Sign-preserving, so 'actively avoid' weights stay negative.
             importance = math.copysign(
                 abs(skill.weight) ** self.weight_exponent, skill.weight
             )
-            value = importance * ((1.0 - alpha) + alpha * progress)
+            value = importance * (1.0 + per_level * (capped - 1))
 
         self._score_cache[key] = value
         return value
@@ -275,7 +272,7 @@ def resolve_pins(
     by_name = {piece.name: piece for piece in game.armor}
     resolved: dict[str, ArmorPiece] = {}
     for piece_type, name in pinned_pieces.items():
-        if not name:
+        if not name or piece_type == TALISMAN_SLOT:
             continue
         if piece_type not in PIECE_TYPES:
             raise ValueError(
@@ -292,6 +289,23 @@ def resolve_pins(
             )
         resolved[piece_type] = piece
     return resolved
+
+
+def resolve_talisman_pin(
+    game: GameData, pinned_pieces: dict[str, str] | None
+) -> Talisman | None:
+    """The talisman pinned under TALISMAN_SLOT, or None.
+
+    Looked up in game.talismans, so a custom talisman can be pinned once its
+    file has been folded into the pool.
+    """
+    name = (pinned_pieces or {}).get(TALISMAN_SLOT)
+    if not name:
+        return None
+    for talisman in game.talismans:
+        if talisman.name == name:
+            return talisman
+    raise ValueError(f"No talisman is named {name!r}.")
 
 
 def resolve_exclusions(
@@ -333,6 +347,12 @@ class Context:
         excluded_pieces: list[str] | set[str] | None = None,
         weapon_slots: tuple[int, ...] = (),
     ) -> None:
+        # A pinned talisman narrows the pool to itself, and everything that
+        # reads game.talismans - reachability, the proofs, the per-set
+        # shortlist - then sees only that one without knowing about pins.
+        self.pinned_talisman = resolve_talisman_pin(game, pinned_pieces)
+        if self.pinned_talisman is not None:
+            game = replace(game, talismans=[self.pinned_talisman])
         self.game = game
         self.scoring = scoring
         self.weapon_slots = tuple(weapon_slots)
@@ -932,6 +952,7 @@ class Optimiser:
             excluded_pieces=excluded_pieces,
             weapon_slots=weapon_slots,
         )
+        self.game = self.context.game  # narrowed to a pinned talisman, if any
         self.beam_width = beam_width
         self.final_pool = final_pool
         self.reserved_slots = reserved_slots
@@ -1211,7 +1232,12 @@ class Optimiser:
             deco = self.context.decoration_for_skill.get(name)
             if deco is None:
                 continue
-            value = self.scoring.marginal(name, 0)
+            # Later levels can be worth more than the first, so the most any
+            # one level is worth, not the first level's value, is the bound.
+            value = max(
+                self.scoring.marginal(name, level)
+                for level in range(self.scoring.max_level(name))
+            )
             for size in range(deco.slot_level, 4):
                 best[size - 1] = max(best[size - 1], value)
         return best[0], best[1], best[2]
@@ -1556,7 +1582,8 @@ class Optimiser:
             defense_score=defense_component,
             total_score=skill_score + defense_component,
             constraint_level=constraint_level_met(final_levels, scoring),
-            pinned_types=frozenset(context.pinned),
+            pinned_types=frozenset(context.pinned)
+            | ({TALISMAN_SLOT} if context.pinned_talisman else set()),
             weapon_placements=self._weapon_placements(
                 talisman, talisman_weapon_sizes, weapon
             ),
@@ -1878,6 +1905,11 @@ def main() -> None:
             help=f"force the {piece_type} slot to this armour piece, by name",
         )
     parser.add_argument(
+        "--pin-talisman",
+        metavar="TALISMAN",
+        help="force this talisman, by name (craftable, or from --talismans)",
+    )
+    parser.add_argument(
         "--exclude-set",
         action="append",
         default=[],
@@ -1969,7 +2001,7 @@ def main() -> None:
         profile = SearchProfile(weights=weights_of(skills))
 
     pins = dict(profile.pins)
-    for piece_type in PIECE_TYPES:
+    for piece_type in (*PIECE_TYPES, TALISMAN_SLOT):
         if getattr(args, f"pin_{piece_type}"):
             pins[piece_type] = getattr(args, f"pin_{piece_type}")
     weapon_slots = list(profile.weapon_slots)
@@ -2085,6 +2117,7 @@ def main() -> None:
             constraint_level,
             db_path,
             pinned=pinned,
+            pinned_talisman=context.pinned_talisman,
             strict=strict,
             reasons=reasons,
             excluded=profile.exclude_sets + profile.exclude_pieces,

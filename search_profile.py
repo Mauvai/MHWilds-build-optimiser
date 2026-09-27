@@ -22,11 +22,12 @@ from pathlib import Path
 
 import yaml
 
-from load_data import DATA_DIR, GameData, Skill
+from load_data import DATA_DIR, GameData, Skill, load_talismans
 from optimiser import (
     MAX_WEAPON_SLOTS,
     PIECE_TYPES,
     RESERVED_SLOTS,
+    TALISMAN_SLOT,
     bonus_base_name,
 )
 
@@ -50,7 +51,8 @@ PROFILE_KEYS = {
 @dataclass
 class SearchProfile:
     weights: dict[str, tuple[float, float]] = field(default_factory=dict)
-    pins: dict[str, str] = field(default_factory=dict)  # slot -> piece name
+    # slot -> piece name; TALISMAN_SLOT -> talisman name
+    pins: dict[str, str] = field(default_factory=dict)
     exclude_sets: list[str] = field(default_factory=list)
     exclude_pieces: list[str] = field(default_factory=list)
     weapon_slots: list[int] = field(default_factory=list)
@@ -209,7 +211,13 @@ def profile_problems(profile: SearchProfile, game: GameData) -> list[str]:
         problems.append("Unknown skills: " + ", ".join(unknown))
     for slot, piece_name in profile.pins.items():
         piece = pieces.get(piece_name)
-        if slot not in PIECE_TYPES:
+        if slot == TALISMAN_SLOT:
+            if piece_name not in _talisman_names(profile, game):
+                problems.append(
+                    f"Pinned talisman {piece_name!r} is neither craftable nor in "
+                    "the custom talisman file."
+                )
+        elif slot not in PIECE_TYPES:
             problems.append(f"Pin on unknown slot {slot!r}.")
         elif piece is None:
             problems.append(f"Pinned piece {piece_name!r} does not exist.")
@@ -243,6 +251,22 @@ def profile_problems(profile: SearchProfile, game: GameData) -> list[str]:
     return problems
 
 
+def _talisman_names(profile: SearchProfile, game: GameData) -> set[str]:
+    """Craftable talismans plus the profile's custom file, if it reads.
+
+    A custom file that does not read adds nothing here; the caller reports
+    the file itself, so the pin is not blamed for the file's fault twice.
+    """
+    names = {t.name for t in game.talismans}
+    path = profile.custom_talismans_path()
+    if path is not None and path.exists():
+        try:
+            names |= {t.name for t in load_talismans(path)}
+        except Exception:  # noqa: BLE001
+            pass
+    return names
+
+
 def save_profile(profile: SearchProfile, path: Path) -> None:
     """Write a profile, keys in a fixed order so saved files diff cleanly."""
     payload = {
@@ -251,7 +275,11 @@ def save_profile(profile: SearchProfile, path: Path) -> None:
             name: {"weight": _plain(w), "level_weight": _plain(lw)}
             for name, (w, lw) in profile.weights.items()
         },
-        "pins": {slot: profile.pins[slot] for slot in PIECE_TYPES if slot in profile.pins},
+        "pins": {
+            slot: profile.pins[slot]
+            for slot in (*PIECE_TYPES, TALISMAN_SLOT)
+            if slot in profile.pins
+        },
         "exclude_sets": sorted(profile.exclude_sets),
         "exclude_pieces": sorted(profile.exclude_pieces),
         "weapon_slots": list(profile.weapon_slots),

@@ -1,6 +1,6 @@
 # Monster Hunter Wilds Build Optimiser
 
-Describe the build you want instead of scrolling through armour piece by piece. You assign a **weight** to each skill, "how much do I care about this?", and a **level weight**, "does the level count as much as simply owning it?", and the optimiser searches every High Rank armor piece, craftable talisman and decoration for the combinations that score best against your weighting.
+Describe the build you want instead of scrolling through armour piece by piece. You assign a **weight** to each skill, "how much do I care about this?", and a **level weight**, "how much do further levels matter?", and the optimiser searches every High Rank armor piece, craftable talisman and decoration for the combinations that score best against your weighting.
 
 One deliberate choice: it does not return ten near-identical builds. Results are banded into *closest variants*, *distinct builds* (built from different pieces) and *distinct bonuses* (set or group bonus effects not already in the list).
 
@@ -75,7 +75,7 @@ Both values sit on roughly a 0–5 scale, and 5 and above is where they stop bei
 - **weight ≥ 5** makes the skill *mandatory*: no build is returned unless it has the skill.
 - **level_weight ≥ 5** (with weight ≥ 5) makes it *mandatory-max*: the build must reach the skill's maximum level. If relaxing is on, this is the first requirement to be dropped.
 
-Below those thresholds the weights are continuous. A high-weight skill earns value for every level of progress toward its maximum, and `level_weight` decides how much of the score depends on *levels* versus simply *owning the skill*. At level_weight 0, a lone level-1 counts for full credit; at 5, nothing counts until you climb to max. Negative weights actively punish skills you don't want (resistances eating decoration slots, say), and zero means the skill is ignored entirely.
+Below those thresholds the weights are continuous. A skill's first level is worth `weight²`, and `level_weight` sets what each level after it adds, as a share of that first level: nothing at 0, so a lone level 1 is full credit, rising evenly to 1.5× the first level at 5, so a skill you want levelled pulls toward finishing it. A level's worth never depends on how many levels the skill has, so one more level of a weight-4 skill beats the first level of a weight-3 one whether it goes to 3 or to 5. Negative weights actively punish skills you don't want (resistances eating decoration slots, say), and zero means the skill is ignored entirely.
 
 The GUI presents this as a −1 to 5 dropdown: −1 avoids, 0 ignores, 1–4 grade how much you want the skill, and 5 mandates it. The file accepts any number, though, so a hand-edited value outside the dropdown's range is kept and shown rather than snapped. −1 sounds too small to matter, one point of it scores −1 against a weight-4 skill's 16, but the skills you avoid are usually incidental to whatever piece carries them, so any penalty at all tips the balance. Two skills that appear in all ten default sets vanish from the results completely at −1. What it cannot do is outweigh a piece you genuinely want for another reason; nothing in this range beats a weight-4 skill sitting on the same armour.
 
@@ -129,7 +129,7 @@ The Gogma selectors credit **one extra piece** toward a chosen set bonus and one
 
 Defense also counts toward the score. Each piece's maximum defense is normalised between 62 and 94 and raised to the power 2.5, which penalises low-defense pieces harder than their linear share would, and whole-set defense is worth roughly one weight-2 skill.
 
-The exponents are chosen deliberately. Skill value grows as `weight²`, because with exponent 1 a level-1 weight-2 skill outscored another level of a weight-4 skill and the search filled sets with shallow filler; above roughly 2.5 the gap gets so extreme that mid-weight skills lose their depth again. The constants (`WEIGHT_EXPONENT`, `LEVEL_WEIGHT_EXPONENT`, `DEFENSE_EXPONENT`) live at the top of [optimiser.py](optimiser.py) with a note on why each value is what it is, if you want to push quality or speed in a different direction.
+The exponents are chosen deliberately. Skill value grows as `weight²`, because with exponent 1 a level-1 weight-2 skill outscored another level of a weight-4 skill and the search filled sets with shallow filler; above roughly 2.5 the gap gets so extreme that mid-weight skills lose their depth again. The constants (`WEIGHT_EXPONENT`, `TOP_LEVEL_VALUE`, `DEFENSE_EXPONENT`) live at the top of [optimiser.py](optimiser.py) with a note on why each value is what it is, if you want to push quality or speed in a different direction.
 
 ### Result Bands
 

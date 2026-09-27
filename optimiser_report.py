@@ -6,12 +6,21 @@ and replace only this layer.
 
 from __future__ import annotations
 
+import re
+from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
 
-from load_data import ArmorPiece
-from optimiser import PIECE_TYPES, WEAPON_SOURCE, GearSet, Scoring, SlotAssignment
+from load_data import ArmorPiece, Talisman
+from optimiser import (
+    PIECE_TYPES,
+    TALISMAN_SLOT,
+    WEAPON_SOURCE,
+    GearSet,
+    Scoring,
+    SlotAssignment,
+)
 
 CONSTRAINT_DESCRIPTIONS = {
     0: "all mandatory skills present, and mandatory max-level skills at max",
@@ -25,6 +34,10 @@ PIN_MARKER = "* "  # leading column on a pinned piece; legend lives in the heade
 
 def _pin_marker(gear_set: GearSet, piece) -> str:
     return PIN_MARKER if piece.piece_type in gear_set.pinned_types else "  "
+
+
+def _charm_marker(gear_set: GearSet) -> str:
+    return PIN_MARKER if TALISMAN_SLOT in gear_set.pinned_types else "  "
 
 
 def _skill_note(name: str, level: int, scoring: Scoring) -> str:
@@ -117,7 +130,9 @@ def render_set(gear_set: GearSet, rank: int, scoring: Scoring) -> str:
     talisman_skills = ", ".join(
         f"{s.name} {s.level}" for s in gear_set.talisman.skills
     )
-    lines.append(f"  {'charm':<6} {gear_set.talisman.name:<26} {talisman_skills}")
+    lines.append(
+        f"{_charm_marker(gear_set)}{'charm':<6} {gear_set.talisman.name:<26} {talisman_skills}"
+    )
     lines.append(f"  Total defence {gear_set.defense_total}")
 
     lines.append("")
@@ -228,7 +243,8 @@ def render_set_inline(gear_set: GearSet, rank: int, total: int, scoring: Scoring
     ]
     talisman_brackets = _slot_brackets(talisman_slots)
     lines.append(
-        f"  {'charm':<6} {gear_set.talisman.name:<26} {talisman_skills}{talisman_brackets}"
+        f"{_charm_marker(gear_set)}{'charm':<6} {gear_set.talisman.name:<26}"
+        f" {talisman_skills}{talisman_brackets}"
     )
     lines.append(f"  Total defence {gear_set.defense_total}")
 
@@ -273,12 +289,194 @@ def render_set_inline(gear_set: GearSet, rank: int, total: int, scoring: Scoring
     return "\n".join(lines)
 
 
+# --- structured view (the GUI results window) ------------------------------
+
+# Game order, which is also the order the results window draws them in.
+ELEMENTS = ("fire", "water", "thunder", "ice", "dragon")
+
+
+@dataclass
+class SlotCell:
+    size: int
+    level: int  # the jewel's own slot level; 0 for an empty slot
+    decoration: str  # "" for an empty slot
+    weapon: bool = False
+
+
+@dataclass
+class EquipmentRow:
+    kind: str  # piece type, "weapon" or "charm"
+    name: str
+    detail: str  # the armour set, or the talisman's skills
+    defence: int | None
+    pinned: bool
+    slots: list[SlotCell]
+
+
+@dataclass
+class SkillMeter:
+    name: str
+    level: int
+    max_level: int
+    tags: list[str]
+
+    @property
+    def maxed(self) -> bool:
+        return self.level >= self.max_level
+
+    @property
+    def minimal(self) -> bool:
+        """One level of a skill that goes to 3 or more: barely there."""
+        return self.level == 1 and self.max_level >= 3
+
+
+@dataclass
+class BonusLine:
+    name: str
+    kind: str  # "set" or "group"
+    pieces: str
+    level: int
+    effects: str
+    weight: float
+
+
+@dataclass
+class SetView:
+    rank: int
+    total: int
+    tier: str
+    total_score: float
+    skill_score: float
+    defence_score: float
+    equipment: list[EquipmentRow]
+    defence_total: int
+    skills: list[SkillMeter]
+    bonuses: list[BonusLine]
+    free_slots: list[str]
+    resistances: dict[str, int]
+
+
+# "Attack Jewel【3】" -> "Attack Jewel": the view draws the level as pips.
+_LEVEL_SUFFIX = re.compile(r"\s*【\d+】$")
+
+
+def _cells(placements: list[SlotAssignment]) -> list[SlotCell]:
+    return [
+        SlotCell(
+            size=p.size,
+            level=p.decoration.slot_level if p.decoration else 0,
+            decoration=_LEVEL_SUFFIX.sub("", p.decoration.name) if p.decoration else "",
+            weapon=p.weapon,
+        )
+        for p in placements
+    ]
+
+
+def set_resistances(gear_set: GearSet) -> dict[str, int]:
+    """The armour's elemental resistances summed, in ELEMENTS order.
+
+    Talismans and decorations carry none of their own, and resistance skills
+    are left as skills: this is the number the equipment screen shows.
+    """
+    return {
+        element: sum(getattr(p.resistances, element) for p in gear_set.pieces)
+        for element in ELEMENTS
+    }
+
+
+def _free_slot_notes(gear_set: GearSet) -> list[str]:
+    if gear_set.free_slots:
+        sizes = ", ".join(str(s) for s in gear_set.free_slots)
+        reserved = min(gear_set.reserved_slots, len(gear_set.free_slots))
+        note = (
+            f" ({reserved} reserved for resistance jewels)"
+            if reserved
+            else " (nothing worth slotting)"
+        )
+        notes = [f"Free slots: [{sizes}]{note}"]
+    else:
+        notes = ["Free slots: none"]
+    return notes + [line.strip() for line in _free_weapon_line(gear_set)]
+
+
+def set_view(gear_set: GearSet, rank: int, total: int, scoring: Scoring) -> SetView:
+    """Everything render_set_inline shows, as data a GUI can lay out itself."""
+    by_source = _placements_by_source(gear_set)
+    equipment = [
+        EquipmentRow(
+            kind=piece.piece_type,
+            name=piece.name,
+            detail=piece.set,
+            defence=piece.defense.max,
+            pinned=piece.piece_type in gear_set.pinned_types,
+            slots=_cells(by_source.get(piece.name, [])),
+        )
+        for piece in gear_set.pieces
+    ]
+    own = _own_weapon_slots(gear_set)
+    if own:
+        equipment.append(EquipmentRow("weapon", "", "", None, False, _cells(own)))
+    talisman = gear_set.talisman
+    talisman_slots = by_source.get(talisman.name, []) + [
+        p for p in gear_set.weapon_placements if p.source == talisman.name
+    ]
+    equipment.append(
+        EquipmentRow(
+            kind="charm",
+            name=talisman.name,
+            detail=", ".join(f"{s.name} {s.level}" for s in talisman.skills),
+            defence=None,
+            pinned=TALISMAN_SLOT in gear_set.pinned_types,
+            slots=_cells(talisman_slots),
+        )
+    )
+
+    skills = []
+    for name, level in _sorted_skills(gear_set, scoring):
+        skill = scoring.by_name.get(name)
+        if skill is None or skill.type in ("Set Bonus", "Group"):
+            continue
+        capped = min(level, skill.max_level)
+        note = _skill_note(name, capped, scoring)
+        # [MAX] is what the meter's colour already says.
+        tags = [t.strip("[]") for t in note.split() if t != "[MAX]"]
+        skills.append(SkillMeter(name, capped, skill.max_level, tags))
+
+    bonuses = [
+        BonusLine(
+            name=b.name,
+            kind="group" if b.bonus_type == "group_skill" else "set",
+            pieces=_bonus_pieces_text(b),
+            level=b.level,
+            effects=", ".join(b.effects),
+            weight=scoring.weight(b.name),
+        )
+        for b in gear_set.active_bonuses
+    ]
+
+    return SetView(
+        rank=rank,
+        total=total,
+        tier=gear_set.tier,
+        total_score=gear_set.total_score,
+        skill_score=gear_set.skill_score,
+        defence_score=gear_set.defense_score,
+        equipment=equipment,
+        defence_total=gear_set.defense_total,
+        skills=skills,
+        bonuses=bonuses,
+        free_slots=_free_slot_notes(gear_set),
+        resistances=set_resistances(gear_set),
+    )
+
+
 def render_console(
     sets: list[GearSet],
     scoring: Scoring,
     constraint_level: int,
     db_path: Path,
     pinned: dict[str, ArmorPiece] | None = None,
+    pinned_talisman: Talisman | None = None,
     strict: bool = True,
     reasons: list[str] | None = None,
     excluded: list[str] | None = None,
@@ -294,15 +492,15 @@ def render_console(
     mandatory = sorted(scoring.mandatory)
     if mandatory:
         header.append("Mandatory skills: " + ", ".join(mandatory))
-    if pinned:
-        header.append(
-            f"Pinned ({PIN_MARKER.strip()}): "
-            + ", ".join(
-                f"{piece_type} {pinned[piece_type].name}"
-                for piece_type in PIECE_TYPES
-                if piece_type in pinned
-            )
-        )
+    pins = [
+        f"{piece_type} {pinned[piece_type].name}"
+        for piece_type in PIECE_TYPES
+        if piece_type in (pinned or {})
+    ]
+    if pinned_talisman is not None:
+        pins.append(f"talisman {pinned_talisman.name}")
+    if pins:
+        header.append(f"Pinned ({PIN_MARKER.strip()}): " + ", ".join(pins))
     if excluded:
         header.append("Excluded: " + ", ".join(excluded))
     if strict and mandatory:

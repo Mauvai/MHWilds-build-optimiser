@@ -37,14 +37,17 @@ from optimiser import (
     MAX_WEAPON_SLOTS,
     PIECE_TYPES,
     RESERVED_SLOTS,
+    TALISMAN_SLOT,
     GearSet,
     Scoring,
     SearchCancelled,
     bonus_base_name,
     gear_set_filename,
     optimise,
+    talisman_slot_sizes,
 )
-from optimiser_report import render_console, render_set_inline, write_yaml
+from optimiser_report import render_console, render_set_inline, set_view, write_yaml
+from results_view import draw_set
 from search_profile import (
     PROFILES_DIR,
     SearchProfile,
@@ -115,12 +118,12 @@ HINTS = {
     "type": "Show only skills of this type.",
     "weight": "How much you want this skill.",
     "level_focus": (
-        "How much of that value depends on reaching higher levels, rather "
-        "than on simply having the skill at all."
+        "How much each level after the first adds. 0: only having the skill "
+        "counts. 5: each further level is worth more than the first."
     ),
     "pins": (
-        "Force a slot to a specific set's piece. Slots left empty are chosen "
-        "freely."
+        "Force a slot to a specific set's piece, or fix the talisman (craftable "
+        "or custom). Slots left empty are chosen freely."
     ),
     "exclude": (
         "Armour the search must never use: sets you have not unlocked, or "
@@ -491,8 +494,9 @@ class SkillsGui:
     def _theme_results_window(self) -> None:
         """Colour the results Toplevel, if it is open.
 
-        Its Text widget is classic Tk, so no ttk restyle reaches it, and the
-        Toplevel carries its own background rather than inheriting the root's.
+        Its Canvas is classic Tk, so no ttk restyle reaches it - the set is
+        redrawn in the new colours instead - and the Toplevel carries its own
+        background rather than inheriting the root's.
         """
         palette = THEMES["dark" if self.dark_var.get() else "light"]
         window = getattr(self, "results_window", None)
@@ -500,13 +504,10 @@ class SkillsGui:
             return
         if palette["window"]:
             window.configure(background=palette["window"])
-        self.results_text.configure(
-            background=palette["text_bg"],
-            foreground=palette["text_fg"],
-            insertbackground=palette["text_fg"],
-            selectbackground=palette["select_bg"],
-            selectforeground=palette["select_fg"],
-        )
+        else:
+            window.configure(background=self.root.cget("background"))
+        if self.gear_sets:
+            self._render_current_set()
 
     @staticmethod
     def _style_dark(style: ttk.Style, palette: dict) -> None:
@@ -794,6 +795,28 @@ class SkillsGui:
             self.pin_vars[piece_type] = var
             self.pin_detail_labels[piece_type] = detail
 
+        # The talisman is the sixth row: same layout, but chosen by name from
+        # the craftable list plus whatever custom file is loaded, which is why
+        # its options are refreshed whenever that file changes.
+        row = len(PIECE_TYPES) * 2
+        ttk.Label(pins, text="Talisman:", width=8).grid(
+            row=row, column=0, sticky=tk.W, pady=(2, 0)
+        )
+        var = tk.StringVar(value=NONE_OPTION)
+        self.talisman_pin_combo = ttk.Combobox(
+            pins, textvariable=var, state="readonly", width=24
+        )
+        self.talisman_pin_combo.grid(
+            row=row, column=1, sticky=tk.W, padx=(4, 0), pady=(2, 0)
+        )
+        detail = ttk.Label(pins, text="", style="Hint.TLabel", wraplength=280)
+        detail.grid(row=row + 1, column=0, columnspan=2, sticky=tk.W)
+        pins.grid_rowconfigure(row + 1, minsize=PIN_DETAIL_HEIGHT)
+        var.trace_add("write", lambda *_a: self._on_pin_change(TALISMAN_SLOT))
+        self.pin_vars[TALISMAN_SLOT] = var
+        self.pin_detail_labels[TALISMAN_SLOT] = detail
+        self._refresh_talisman_pin_options()
+
         ttk.Separator(gear, orient=tk.HORIZONTAL).pack(
             side=tk.TOP, fill=tk.X, pady=(10, 6)
         )
@@ -1021,9 +1044,45 @@ class SkillsGui:
         self.weight_entry.config(state=tk.DISABLED)
         self.level_weight_entry.config(state=tk.DISABLED)
 
+    def _pinnable_talismans(self) -> dict[str, Talisman]:
+        """Name -> talisman, custom first. On a clash the craftable one wins,
+        since it comes first in the optimiser's pool and is what a pin by that
+        name resolves to."""
+        by_name: dict[str, Talisman] = {}
+        for talisman in self.game_data.talismans:
+            by_name.setdefault(talisman.name, talisman)
+        custom = {}
+        for talisman in self.custom_talismans_loaded:
+            if talisman.name not in by_name:
+                custom.setdefault(talisman.name, talisman)
+        return {**custom, **by_name}
+
+    def _refresh_talisman_pin_options(self) -> None:
+        """Reload the talisman dropdown after the custom file changes.
+
+        A pinned custom talisman whose file was just unloaded is unpinned,
+        rather than left naming something the run could not find.
+        """
+        names = list(self._pinnable_talismans())
+        self.talisman_pin_combo.config(values=[NONE_OPTION] + names)
+        var = self.pin_vars[TALISMAN_SLOT]
+        if var.get() not in names:
+            var.set(NONE_OPTION)
+
     def _on_pin_change(self, piece_type: str) -> None:
-        piece = self._pinned_piece(piece_type)
         label = self.pin_detail_labels[piece_type]
+        if piece_type == TALISMAN_SLOT:
+            talisman = self._pinned_talisman()
+            if talisman is None:
+                label.config(text="")
+                return
+            skills = ", ".join(f"{s.name} {s.level}" for s in talisman.skills)
+            armour, weapon = talisman_slot_sizes(talisman)
+            slots = f"  [{','.join(map(str, armour))}]" if armour else ""
+            slots += f"  W[{','.join(map(str, weapon))}]" if weapon else ""
+            label.config(text=f"{skills or 'no skills'}{slots}")
+            return
+        piece = self._pinned_piece(piece_type)
         if piece is None:
             label.config(text="")
             return
@@ -1036,12 +1095,22 @@ class SkillsGui:
             return None
         return self.piece_by_slot_set.get((piece_type, set_name))
 
+    def _pinned_talisman(self) -> Talisman | None:
+        name = self.pin_vars[TALISMAN_SLOT].get()
+        if not name or name == NONE_OPTION:
+            return None
+        return self._pinnable_talismans().get(name)
+
     def _pinned_pieces(self) -> dict[str, str]:
+        """Armour pins by slot, plus the talisman under TALISMAN_SLOT."""
         pinned = {}
         for piece_type in PIECE_TYPES:
             piece = self._pinned_piece(piece_type)
             if piece is not None:
                 pinned[piece_type] = piece.name
+        talisman = self._pinned_talisman()
+        if talisman is not None:
+            pinned[TALISMAN_SLOT] = talisman.name
         return pinned
 
     def _weapon_slots(self) -> tuple[int, ...]:
@@ -1869,6 +1938,9 @@ class SkillsGui:
             self.custom_talismans_status_var.set(
                 f"Custom talismans: {len(talismans)} loaded from {talismans_path.name}"
             )
+            self._refresh_talisman_pin_options()
+        # After the custom file, which may be where the pinned talisman lives.
+        self.pin_vars[TALISMAN_SLOT].set(profile.pins.get(TALISMAN_SLOT) or NONE_OPTION)
         self.status_var.set(f"Loaded profile {path.name}")
         return True
 
@@ -1900,11 +1972,13 @@ class SkillsGui:
         self.custom_talismans_status_var.set(
             f"Custom talismans: {len(talismans)} loaded from {path.name}"
         )
+        self._refresh_talisman_pin_options()
 
     def _clear_loaded_custom_talismans(self) -> None:
         self.custom_talismans_loaded = []
         self.custom_talismans_source = None
         self.custom_talismans_status_var.set("Custom talismans: none loaded")
+        self._refresh_talisman_pin_options()
 
     # --- custom talismans tab: building/editing -----------------------------
 
@@ -2373,23 +2447,51 @@ class SkillsGui:
                 exports, textvariable=self.results_status_var, style="Status.TLabel"
             ).pack(side=tk.LEFT, padx=(12, 0))
 
-            text_frame = ttk.Frame(window)
-            text_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(0, 8))
-            self.results_text = tk.Text(
-                text_frame, wrap=tk.NONE, font=("Consolas", 10), state=tk.DISABLED
-            )
-            self.results_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            view_frame = ttk.Frame(window)
+            view_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(0, 8))
+            view_frame.rowconfigure(0, weight=1)
+            view_frame.columnconfigure(0, weight=1)
+            self.results_canvas = tk.Canvas(view_frame, highlightthickness=0)
+            self.results_canvas.grid(row=0, column=0, sticky="nsew")
             yscroll = ttk.Scrollbar(
-                text_frame, orient=tk.VERTICAL, command=self.results_text.yview
+                view_frame, orient=tk.VERTICAL, command=self.results_canvas.yview
             )
-            yscroll.pack(side=tk.RIGHT, fill=tk.Y)
-            self.results_text.config(yscrollcommand=yscroll.set)
+            yscroll.grid(row=0, column=1, sticky="ns")
+            xscroll = ttk.Scrollbar(
+                view_frame, orient=tk.HORIZONTAL, command=self.results_canvas.xview
+            )
+            xscroll.grid(row=1, column=0, sticky="ew")
+            self.results_canvas.config(
+                yscrollcommand=yscroll.set, xscrollcommand=xscroll.set
+            )
+            self.results_canvas.bind(
+                "<MouseWheel>",
+                lambda e: self.results_canvas.yview_scroll(-e.delta // 120, "units"),
+            )
+            self._results_sized = False
             self._theme_results_window()
         else:
             self.results_window.deiconify()
             self.results_window.lift()
 
         self._render_current_set()
+
+    def _fit_results_window(self, width: int, height: int) -> None:
+        """Size the window to the first set drawn, within the screen.
+
+        Only once per window: after that the size is the user's, and a set a
+        little taller than the last should scroll rather than make it jump.
+        """
+        window = self.results_window
+        window.update_idletasks()
+        chrome_w = window.winfo_reqwidth() - self.results_canvas.winfo_reqwidth()
+        chrome_h = window.winfo_reqheight() - self.results_canvas.winfo_reqheight()
+        max_w = window.winfo_screenwidth() - SCREEN_MARGIN
+        max_h = window.winfo_screenheight() - SCREEN_MARGIN
+        window.geometry(
+            f"{min(width + chrome_w, max_w)}x{min(height + chrome_h, max_h)}"
+        )
+        self._results_sized = True
 
     def _close_results_window(self) -> None:
         if self.results_window is not None:
@@ -2400,15 +2502,16 @@ class SkillsGui:
         total = len(self.gear_sets)
         if total == 0 or self.gear_scoring is None:
             return
-        gear_set = self.gear_sets[self.gear_set_index]
-        text = render_set_inline(
-            gear_set, self.gear_set_index + 1, total, self.gear_scoring
+        view = set_view(
+            self.gear_sets[self.gear_set_index],
+            self.gear_set_index + 1,
+            total,
+            self.gear_scoring,
         )
-
-        self.results_text.config(state=tk.NORMAL)
-        self.results_text.delete("1.0", tk.END)
-        self.results_text.insert("1.0", text)
-        self.results_text.config(state=tk.DISABLED)
+        width, height = draw_set(self.results_canvas, view, self.dark_var.get())
+        self.results_canvas.config(scrollregion=(0, 0, width, height))
+        if not self._results_sized:
+            self._fit_results_window(width, height)
 
         self.set_position_var.set(f"Set {self.gear_set_index + 1} of {total}")
         self.prev_button.config(
@@ -2441,13 +2544,27 @@ class SkillsGui:
         result = self.gear_result
         request = result.request
         by_name = {p.name: p for p in self.game_data.armor}
-        pinned = {slot: by_name[name] for slot, name in request.pinned_pieces.items()}
+        pinned = {
+            slot: by_name[name]
+            for slot, name in request.pinned_pieces.items()
+            if slot != TALISMAN_SLOT
+        }
+        talisman_name = request.pinned_pieces.get(TALISMAN_SLOT)
+        pinned_talisman = next(
+            (
+                t
+                for t in [*self.game_data.talismans, *request.custom_talismans]
+                if t.name == talisman_name
+            ),
+            None,
+        )
         return render_console(
             result.sets,
             result.scoring,
             result.constraint_level,
             request.source_label,
             pinned=pinned,
+            pinned_talisman=pinned_talisman,
             strict=request.strict,
             excluded=request.excluded_sets + request.excluded_pieces,
         )

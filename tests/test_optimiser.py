@@ -48,6 +48,42 @@ class Scoring_(unittest.TestCase):
             scoring.score("Weakness Exploit", 1), scoring.score("Weakness Exploit", 5)
         )
 
+    def test_level_weight_five_still_values_the_first_level(self):
+        scoring = Scoring(weighted({"Evade Window": (4, 5)}))
+        self.assertEqual(scoring.score("Evade Window", 1), 16)
+
+    def test_later_levels_outweigh_the_first_at_high_level_weight(self):
+        scoring = Scoring(weighted({"Evade Window": (4, 5)}))
+        self.assertGreater(scoring.marginal("Evade Window", 1), scoring.marginal("Evade Window", 0))
+
+    def test_level_value_ignores_max_level(self):
+        # Evade Window goes to 5, Evade Extender to 3: same weights, same steps.
+        scoring = Scoring(weighted({"Evade Window": (3, 4), "Evade Extender": (3, 4)}))
+        for level in range(3):
+            self.assertAlmostEqual(
+                scoring.marginal("Evade Window", level),
+                scoring.marginal("Evade Extender", level),
+            )
+
+    def test_a_levelled_skill_beats_a_merely_present_one(self):
+        scoring = Scoring(weighted({"Evade Window": (3, 5), "Evade Extender": (5, 1)}))
+        self.assertGreater(
+            scoring.marginal("Evade Window", 1), scoring.marginal("Evade Extender", 1)
+        )
+
+    def test_higher_weighted_level_wins_the_jewel_slot(self):
+        # The reported case: one size-2 slot, Evade Window (4/5) already at 2,
+        # Evade Extender (3/4) absent. Both jewels are size 2.
+        from optimiser import Context
+
+        scoring = Scoring(weighted({"Evade Window": (4, 5), "Evade Extender": (3, 4)}))
+        options = decoration_options(
+            {"Evade Window": 2}, Context(game(), scoring)
+        )
+        _value, counts = fill_slots(options, (0, 1, 0))
+        chosen = [o.skill for o, n in zip(options, counts) if n]
+        self.assertEqual(chosen, ["Evade Window"])
+
     def test_negative_weight_stays_negative(self):
         scoring = Scoring(weighted({"Weakness Exploit": (-1, 0)}))
         self.assertLess(scoring.score("Weakness Exploit", 1), 0)
