@@ -48,6 +48,7 @@ from optimiser import (
 )
 from optimiser_report import render_console, render_set_inline, set_view, write_yaml
 from results_view import draw_set
+import update_check
 from search_profile import (
     PROFILES_DIR,
     SearchProfile,
@@ -77,6 +78,7 @@ THEMES = {
         "ttk_theme": None,  # None means "whatever Tk started with"
         "hint": "#555555",
         "status": "#2a7f2a",
+        "update": "#b35900",
         "window": None,  # None means "leave the widget's own default alone"
         "text_bg": "white",
         "text_fg": "black",
@@ -87,6 +89,7 @@ THEMES = {
         "ttk_theme": "clam",
         "hint": "#a0a0a0",
         "status": "#6fbf6f",
+        "update": "#f0a040",
         "window": "#1f1f1f",
         "surface": "#2b2b2b",  # entries, buttons, anything inset
         "border": "#3c3c3c",
@@ -106,7 +109,8 @@ THEMES = {
 LIST_ROWS = 18
 GAP = 4  # vertical breathing room between a hint and the control it describes
 SCREEN_MARGIN = 80  # px left for the title bar and taskbar when sizing to fit
-GUI_STATE_PATH = DATA_DIR / "gui_state.json"  # remembered theme only; gitignored
+GUI_STATE_PATH = DATA_DIR / "gui_state.json"  # remembered settings only; gitignored
+UPDATE_POLL_MS = 250  # how often the main thread looks for the update check's answer
 SECTION_PAD = (8, 4, 8, 8)  # inside every titled box, so they all read alike
 PIN_DETAIL_HEIGHT = 18  # px reserved per pinned-piece line, set or not
 
@@ -344,6 +348,12 @@ class SkillsGui:
 
         state = self._read_state()
         self.dark_var = tk.BooleanVar(value=bool(state.get("dark", False)))
+        # On unless switched off: the check is one request to GitHub's API
+        # per launch, and the box beside Dark Mode turns it off for good.
+        self.check_updates_var = tk.BooleanVar(
+            value=bool(state.get("check_updates", True))
+        )
+        self.update_status: update_check.UpdateStatus | None = None
         # Captured before any theme switch, so light mode can always get back to
         # whatever Tk chose for this platform rather than to a name hard-coded
         # here - "vista" does not exist on Linux.
@@ -382,6 +392,8 @@ class SkillsGui:
         self._apply_theme()
         self._apply_window_size()
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
+        if self.check_updates_var.get():
+            self._start_update_check()
 
     def _apply_window_size(self) -> None:
         """Open at the smallest size the widgets fit, which is also the minimum.
@@ -406,7 +418,7 @@ class SkillsGui:
 
     @staticmethod
     def _read_state() -> dict:
-        """Remembered theme, or {} if there is nothing usable.
+        """Remembered settings, or {} if there is nothing usable.
 
         An older file may still carry width and height; they are ignored.
 
@@ -423,7 +435,12 @@ class SkillsGui:
     def _write_state(self) -> None:
         try:
             GUI_STATE_PATH.write_text(
-                json.dumps({"dark": bool(self.dark_var.get())}),
+                json.dumps(
+                    {
+                        "dark": bool(self.dark_var.get()),
+                        "check_updates": bool(self.check_updates_var.get()),
+                    }
+                ),
                 encoding="utf-8",
             )
         except OSError:
@@ -458,10 +475,12 @@ class SkillsGui:
 
         style.configure("Hint.TLabel", foreground=palette["hint"])
         style.configure("Status.TLabel", foreground=palette["status"])
+        style.configure("Update.TLabel", foreground=palette["update"])
         if palette["window"]:
             self.root.configure(background=palette["window"])
             style.configure("Hint.TLabel", background=palette["window"])
             style.configure("Status.TLabel", background=palette["window"])
+            style.configure("Update.TLabel", background=palette["window"])
 
         for listbox in (self.listbox, self.ct_listbox):
             listbox.configure(
@@ -614,6 +633,52 @@ class SkillsGui:
         self._apply_theme()
         self._write_state()
 
+    # --- update check ----------------------------------------------------------
+
+    def _on_update_toggle(self) -> None:
+        self._write_state()
+        if self.check_updates_var.get() and self.update_status is None:
+            self._start_update_check()
+
+    def _start_update_check(self) -> None:
+        """Ask GitHub on a worker thread; the answer is picked up by polling.
+
+        The same split as the optimiser run: the worker only writes to a
+        queue and never touches Tk, which is not thread-safe.
+        """
+        results: queue.Queue = queue.Queue()
+
+        def worker() -> None:
+            try:
+                results.put(update_check.check())
+            except Exception:  # noqa: BLE001 - a failed check is no answer
+                results.put(None)
+
+        threading.Thread(target=worker, daemon=True).start()
+        self.root.after(UPDATE_POLL_MS, self._poll_update_check, results)
+
+    def _poll_update_check(self, results: queue.Queue) -> None:
+        try:
+            status = results.get_nowait()
+        except queue.Empty:
+            self.root.after(UPDATE_POLL_MS, self._poll_update_check, results)
+            return
+        self._show_update_status(status)
+
+    def _show_update_status(self, status) -> None:
+        """Show the banner if this copy is behind; say nothing otherwise."""
+        self.update_status = status
+        if status is None or not status.out_of_date:
+            return
+        self.update_text_var.set(status.message())
+        self.update_banner.pack(side=tk.TOP, fill=tk.X, before=self.notebook)
+        # The window was sized before the banner existed; without a resize
+        # the banner's height comes off the bottom of the tab instead.
+        self._apply_window_size()
+
+    def _dismiss_update_banner(self) -> None:
+        self.update_banner.pack_forget()
+
     def _build_widgets(self) -> None:
         chrome = ttk.Frame(self.root, padding=(8, 4, 8, 0))
         chrome.pack(side=tk.TOP, fill=tk.X)
@@ -625,6 +690,27 @@ class SkillsGui:
             variable=self.dark_var,
             command=self._on_theme_toggle,
         ).pack(side=tk.RIGHT)
+        ttk.Checkbutton(
+            chrome,
+            text="Check for Updates",
+            variable=self.check_updates_var,
+            command=self._on_update_toggle,
+        ).pack(side=tk.RIGHT, padx=(0, 12))
+
+        # Built now, shown only once the check finds this copy out of date,
+        # so an up-to-date or offline start looks exactly as it did before.
+        self.update_banner = ttk.Frame(self.root, padding=(8, 4, 8, 0))
+        self.update_text_var = tk.StringVar(value="")
+        ttk.Label(
+            self.update_banner,
+            textvariable=self.update_text_var,
+            style="Update.TLabel",
+            wraplength=900,
+            justify=tk.LEFT,
+        ).pack(side=tk.LEFT, fill=tk.X, expand=True)
+        ttk.Button(
+            self.update_banner, text="Dismiss", command=self._dismiss_update_banner
+        ).pack(side=tk.RIGHT, padx=(8, 0))
 
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(side=tk.TOP, fill=tk.BOTH, expand=True)

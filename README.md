@@ -42,6 +42,10 @@ Build charms the game doesn't actually have: up to three skills each, plus up to
 
 **Select/Create File…** opens an existing file for editing or names a new one, and writes nothing by itself, so it never asks to replace anything, opens by itself the first time you visit the tab, and only on click afterwards. A talisman may not list the same skill twice or take a level below 1, because two rows of one skill would stack past the max-level check a single row gets. **Delete Selected** rewrites the file immediately and asks first; there is no undo.
 
+### Update Check
+
+At start-up the GUI asks GitHub whether this checkout is behind [`Mauvai/MHWilds-build-optimiser`](https://github.com/Mauvai/MHWilds-build-optimiser) `main`, and if it is, a banner above the tabs says by how many commits and gives the pull command, naming your local remote for that repo when one exists (`git pull origin main`) and the full URL when none does. It's one request to GitHub's compare API on a background thread, so a slow or absent network never holds the window up; offline, rate-limited, or a copy with no `.git` folder (a zip download) all simply show nothing. The local commit is read from `.git` directly, so git needn't be on PATH, and git is only run for the one case GitHub can't answer: local commits never pushed anywhere, where it checks read-only whether upstream's latest commit is already in your history. **Check for Updates**, beside Dark Mode, turns it off and is remembered in `gui_state.json`.
+
 ## Command Line
 
 ```
@@ -185,6 +189,7 @@ The GUI tests never open a window: they call `SkillsGui` methods on stand-in obj
 | `optimiser.py` | Beam-search engine and scoring model (`Scoring`, `Optimiser`, `GearSet`) plus the CLI entry point. Deliberately print-free so the GUI can reuse it directly |
 | `optimiser_report.py` | Rendering only: the console text, the inline result view for the GUI window, and YAML export of results |
 | `check_data.py` | Report-only comparison of the local data with the Wilds API; see [Checking the data](#checking-the-data-after-a-title-update) |
+| `update_check.py` | The start-up comparison of the local commit with GitHub; see [Update check](#update-check) |
 | `search_profile.py` | The search profile format: loading with shape checks, `profile_problems` against the game data, saving |
 | `load_data.py` | Typed dataclasses (`Skill`, `ArmorPiece`, `Talisman`, `Decoration`) and loaders with validation (it refuses to treat a results file as a skills DB, for example). Run it directly for record counts |
 | `skills_default.yaml` | Every skill: armor, weapon, set bonus, group and food, with descriptions, max level, per-level effects, scaling class and per-source URLs. `weight`/`level_weight` start at 0 placeholders |
@@ -193,7 +198,7 @@ The GUI tests never open a window: they call `SkillsGui` methods on stand-in obj
 | `decorations.yaml` | Armor and weapon jewels with their slot sizes and skills |
 | `tests/` | The `unittest` suite; see [Tests](#tests) |
 | `launch_gui.bat` | Windows launcher: runs `pythonw skills_gui.py` from the repo folder |
-| `gui_state.json` | Written by the GUI when dark mode is toggled and on close; holds only that setting. Gitignored |
+| `gui_state.json` | Written by the GUI when Dark Mode or Check for Updates is toggled and on close; holds only those two settings. Gitignored |
 | `skills_outputs/`, `optimiser_outputs/`, `custom_talismans_outputs/`, `profiles/` | Your generated files. Contents are gitignored, but each folder keeps a tracked `.keepempty` marker so they exist on clone |
 
 ## License
