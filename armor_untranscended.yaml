@@ -1,0 +1,1668 @@
+# Monster Hunter Wilds -- High Rank armour before Armor Transcending
+# Source: the Wilds API, https://wilds.mhdb.io (data version 2026-04-15),
+# /en/armor with rank "high". high_rank_armor.yaml lists transcended slots
+# and transcended maximum defence for every piece that can be transcended
+# (its 'slots_source: transcended' pieces, rarity 5 and 6); this file holds
+# what those same pieces have without it, which is what the API reports.
+# One record per transcended piece, by name, in the High Rank file's order.
+# Transcending raises a rarity-5 piece's maximum defence by 14 and a
+# rarity-6 piece's by 10; base defence is unchanged, so it is not repeated.
+- name: Afi Crown α
+  slots:
+  - 2
+  defense_max: 76
+- name: Afi Top α
+  slots:
+  - 2
+  defense_max: 76
+- name: Afi Armguards α
+  slots:
+  - 1
+  defense_max: 76
+- name: Afi Wrap α
+  slots: []
+  defense_max: 76
+- name: Afi Sandals α
+  slots:
+  - 1
+  - 1
+  defense_max: 76
+- name: Ajarakan Helm α
+  slots:
+  - 1
+  defense_max: 80
+- name: Ajarakan Mail α
+  slots:
+  - 1
+  defense_max: 80
+- name: Ajarakan Vambraces α
+  slots:
+  - 2
+  defense_max: 80
+- name: Ajarakan Coil α
+  slots:
+  - 1
+  defense_max: 80
+- name: Ajarakan Greaves α
+  slots: []
+  defense_max: 80
+- name: Ajarakan Helm β
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: Ajarakan Mail β
+  slots:
+  - 2
+  defense_max: 80
+- name: Ajarakan Vambraces β
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: Ajarakan Coil β
+  slots:
+  - 2
+  defense_max: 80
+- name: Ajarakan Greaves β
+  slots:
+  - 1
+  - 1
+  defense_max: 80
+- name: Demon Prayer Beads α
+  slots:
+  - 2
+  - 2
+  - 1
+  defense_max: 80
+- name: Demon Garb α
+  slots:
+  - 3
+  - 1
+  defense_max: 80
+- name: Demon Arm Wraps α
+  slots:
+  - 2
+  - 2
+  - 1
+  defense_max: 80
+- name: Demon Belt α
+  slots:
+  - 3
+  - 1
+  defense_max: 80
+- name: Demon Pants α
+  slots:
+  - 2
+  - 2
+  - 1
+  defense_max: 80
+- name: Alloy Helm α
+  slots:
+  - 1
+  - 1
+  defense_max: 72
+- name: Alloy Mail α
+  slots:
+  - 1
+  defense_max: 72
+- name: Alloy Vambraces α
+  slots:
+  - 1
+  - 1
+  defense_max: 72
+- name: Alloy Coil α
+  slots:
+  - 1
+  defense_max: 72
+- name: Alloy Greaves α
+  slots:
+  - 1
+  defense_max: 72
+- name: Amstrigian α
+  slots: []
+  defense_max: 76
+- name: Artian Helm α
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Artian Mail α
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 76
+- name: Artian Vambraces α
+  slots:
+  - 2
+  defense_max: 76
+- name: Artian Coil α
+  slots:
+  - 2
+  defense_max: 76
+- name: Artian Greaves α
+  slots:
+  - 2
+  defense_max: 76
+- name: Azuz Headdress α
+  slots:
+  - 2
+  defense_max: 76
+- name: Azuz Apron α
+  slots:
+  - 1
+  - 1
+  defense_max: 76
+- name: Azuz Pants α
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 76
+- name: Balahara Helm α
+  slots:
+  - 1
+  defense_max: 78
+- name: Balahara Mail α
+  slots:
+  - 1
+  defense_max: 78
+- name: Balahara Vambraces α
+  slots: []
+  defense_max: 78
+- name: Balahara Coil α
+  slots: []
+  defense_max: 78
+- name: Balahara Greaves α
+  slots:
+  - 1
+  - 1
+  defense_max: 78
+- name: Balahara Helm β
+  slots:
+  - 2
+  defense_max: 78
+- name: Balahara Mail β
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 78
+- name: Balahara Vambraces β
+  slots:
+  - 2
+  defense_max: 78
+- name: Balahara Coil β
+  slots:
+  - 1
+  - 1
+  defense_max: 78
+- name: Balahara Greaves β
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 78
+- name: Battle Helm α
+  slots:
+  - 2
+  defense_max: 76
+- name: Battle Mail α
+  slots:
+  - 2
+  defense_max: 76
+- name: Battle Vambraces α
+  slots:
+  - 2
+  defense_max: 76
+- name: Battle Coil α
+  slots:
+  - 2
+  defense_max: 76
+- name: Battle Greaves α
+  slots:
+  - 2
+  defense_max: 76
+- name: Blango Helm α
+  slots:
+  - 1
+  - 1
+  defense_max: 80
+- name: Blango Mail α
+  slots: []
+  defense_max: 80
+- name: Blango Vambraces α
+  slots:
+  - 2
+  defense_max: 80
+- name: Blango Coil α
+  slots:
+  - 1
+  defense_max: 80
+- name: Blango Greaves α
+  slots:
+  - 1
+  - 1
+  defense_max: 80
+- name: Blango Helm β
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 80
+- name: Blango Mail β
+  slots:
+  - 2
+  defense_max: 80
+- name: Blango Vambraces β
+  slots:
+  - 2
+  - 2
+  defense_max: 80
+- name: Blango Coil β
+  slots:
+  - 1
+  - 1
+  defense_max: 80
+- name: Blango Greaves β
+  slots:
+  - 2
+  - 2
+  defense_max: 80
+- name: Blossom Headgear α
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Blossom Vest α
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 76
+- name: Blossom Cuffs α
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 76
+- name: Blossom Coat α
+  slots:
+  - 2
+  - 2
+  defense_max: 76
+- name: Blossom Boots α
+  slots:
+  - 1
+  - 1
+  defense_max: 76
+- name: Bone Helm α
+  slots:
+  - 1
+  defense_max: 72
+- name: Bone Mail α
+  slots:
+  - 1
+  defense_max: 72
+- name: Bone Vambraces α
+  slots:
+  - 1
+  defense_max: 72
+- name: Bone Coil α
+  slots:
+  - 1
+  - 1
+  defense_max: 72
+- name: Bone Greaves α
+  slots:
+  - 1
+  - 1
+  defense_max: 72
+- name: Bulaqchi Specs α
+  slots: []
+  defense_max: 72
+- name: Bulaqchi Specs β
+  slots:
+  - 2
+  - 1
+  defense_max: 72
+- name: Butterfly Vertex α
+  slots:
+  - 2
+  defense_max: 76
+- name: Butterfly Thorax α
+  slots:
+  - 2
+  defense_max: 76
+- name: Butterfly Brachia α
+  slots:
+  - 2
+  defense_max: 76
+- name: Butterfly Elytra α
+  slots:
+  - 2
+  defense_max: 76
+- name: Butterfly Crura α
+  slots:
+  - 2
+  defense_max: 76
+- name: Ceremonial Helm α
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Ceremonial Mail α
+  slots:
+  - 1
+  defense_max: 76
+- name: Ceremonial Vambraces α
+  slots:
+  - 2
+  defense_max: 76
+- name: Ceremonial Coil α
+  slots:
+  - 1
+  - 1
+  defense_max: 76
+- name: Ceremonial Greaves α
+  slots:
+  - 2
+  defense_max: 76
+- name: Chainmail Headgear α
+  slots:
+  - 1
+  - 1
+  defense_max: 66
+- name: Chainmail Armor α
+  slots:
+  - 1
+  defense_max: 66
+- name: Chainmail Gloves α
+  slots:
+  - 1
+  defense_max: 66
+- name: Chainmail Belt α
+  slots:
+  - 1
+  defense_max: 66
+- name: Chainmail Pants α
+  slots:
+  - 1
+  - 1
+  defense_max: 66
+- name: Chatacabra Helm α
+  slots:
+  - 1
+  defense_max: 76
+- name: Chatacabra Mail α
+  slots: []
+  defense_max: 76
+- name: Chatacabra Vambraces α
+  slots:
+  - 1
+  defense_max: 76
+- name: Chatacabra Coil α
+  slots:
+  - 1
+  defense_max: 76
+- name: Chatacabra Greaves α
+  slots: []
+  defense_max: 76
+- name: Chatacabra Helm β
+  slots:
+  - 2
+  defense_max: 76
+- name: Chatacabra Mail β
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 76
+- name: Chatacabra Vambraces β
+  slots:
+  - 2
+  defense_max: 76
+- name: Chatacabra Coil β
+  slots:
+  - 1
+  - 1
+  defense_max: 76
+- name: Chatacabra Greaves β
+  slots:
+  - 1
+  defense_max: 76
+- name: Clerk Visor α
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: Clerk Suit α
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: Clerk Vambraces α
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: Clerk Belt α
+  slots:
+  - 1
+  defense_max: 80
+- name: Clerk Shoes α
+  slots:
+  - 2
+  - 2
+  defense_max: 80
+- name: Comaqchi Accessory α
+  slots: []
+  defense_max: 72
+- name: Comaqchi Accessory β
+  slots:
+  - 2
+  - 1
+  defense_max: 72
+- name: Commission Helm α
+  slots:
+  - 1
+  defense_max: 76
+- name: Commission Mail α
+  slots:
+  - 1
+  defense_max: 76
+- name: Commission Vambraces α
+  slots:
+  - 1
+  defense_max: 76
+- name: Commission Coil α
+  slots:
+  - 1
+  defense_max: 76
+- name: Commission Greaves α
+  slots:
+  - 1
+  defense_max: 76
+- name: Conga Helm α
+  slots:
+  - 1
+  defense_max: 76
+- name: Conga Mail α
+  slots: []
+  defense_max: 76
+- name: Conga Vambraces α
+  slots: []
+  defense_max: 76
+- name: Conga Coil α
+  slots:
+  - 1
+  defense_max: 76
+- name: Conga Greaves α
+  slots: []
+  defense_max: 76
+- name: Conga Helm β
+  slots:
+  - 2
+  defense_max: 76
+- name: Conga Mail β
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 76
+- name: Conga Vambraces β
+  slots:
+  - 1
+  defense_max: 76
+- name: Conga Coil β
+  slots:
+  - 2
+  defense_max: 76
+- name: Conga Greaves β
+  slots:
+  - 2
+  defense_max: 76
+- name: Death Stench Brain α
+  slots:
+  - 2
+  defense_max: 76
+- name: Death Stench Muscle α
+  slots:
+  - 2
+  defense_max: 76
+- name: Death Stench Grip α
+  slots:
+  - 2
+  defense_max: 76
+- name: Death Stench Bowels α
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Death Stench Heel α
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Diver's Mask α
+  slots:
+  - 2
+  defense_max: 76
+- name: Diver's Suit α
+  slots:
+  - 1
+  - 1
+  defense_max: 76
+- name: Diver's Braces α
+  slots:
+  - 2
+  defense_max: 76
+- name: Diver's Belt α
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 76
+- name: Diver's Boots α
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Doshaguma Helm α
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: Doshaguma Mail α
+  slots:
+  - 1
+  defense_max: 80
+- name: Doshaguma Braces α
+  slots:
+  - 2
+  defense_max: 80
+- name: Doshaguma Coil α
+  slots:
+  - 1
+  defense_max: 80
+- name: Doshaguma Greaves α
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: Doshaguma Helm β
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 80
+- name: Doshaguma Mail β
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 80
+- name: Doshaguma Braces β
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: Doshaguma Coil β
+  slots:
+  - 2
+  - 2
+  defense_max: 80
+- name: Doshaguma Greaves β
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 80
+- name: Doshagumask α
+  slots: []
+  defense_max: 80
+- name: Dreamwalker Helm α
+  slots: []
+  defense_max: 76
+- name: Dreamwalker Mail α
+  slots:
+  - 2
+  defense_max: 76
+- name: Dreamwalker Braces α
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Dreamwalker Coil α
+  slots: []
+  defense_max: 76
+- name: Dreamwalker Greaves α
+  slots:
+  - 1
+  - 1
+  defense_max: 76
+- name: Earrings of Dedication α
+  slots:
+  - 2
+  defense_max: 80
+- name: Expedition Headgear α
+  slots:
+  - 1
+  defense_max: 80
+- name: Faux Felyne α
+  slots: []
+  defense_max: 76
+- name: Gajau Boots α
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 76
+- name: Gourmand's Earring α
+  slots:
+  - 1
+  defense_max: 76
+- name: Gravios Helm α
+  slots:
+  - 2
+  - 1
+  defense_max: 84
+- name: Gravios Mail α
+  slots:
+  - 2
+  - 1
+  defense_max: 84
+- name: Gravios Vambraces α
+  slots:
+  - 1
+  defense_max: 84
+- name: Gravios Coil α
+  slots:
+  - 2
+  defense_max: 84
+- name: Gravios Greaves α
+  slots:
+  - 2
+  - 1
+  defense_max: 84
+- name: Gravios Helm β
+  slots:
+  - 2
+  - 2
+  defense_max: 84
+- name: Gravios Mail β
+  slots:
+  - 2
+  - 2
+  defense_max: 84
+- name: Gravios Vambraces β
+  slots:
+  - 2
+  defense_max: 84
+- name: Gravios Coil β
+  slots:
+  - 2
+  - 1
+  defense_max: 84
+- name: Gravios Greaves β
+  slots:
+  - 2
+  - 2
+  defense_max: 84
+- name: G. Doshaguma Helm α
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: G. Doshaguma Mail α
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: G. Doshaguma Braces α
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 80
+- name: G. Doshaguma Coil α
+  slots:
+  - 2
+  defense_max: 80
+- name: G. Doshaguma Greaves α
+  slots:
+  - 2
+  defense_max: 80
+- name: G. Doshaguma Helm β
+  slots:
+  - 2
+  - 2
+  - 1
+  defense_max: 80
+- name: G. Doshaguma Mail β
+  slots:
+  - 2
+  - 2
+  defense_max: 80
+- name: G. Doshaguma Braces β
+  slots:
+  - 2
+  - 2
+  - 1
+  defense_max: 80
+- name: G. Doshaguma Coil β
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: G. Doshaguma Greaves β
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: G. Ebony Helm α
+  slots: []
+  defense_max: 80
+- name: G. Ebony Mail α
+  slots:
+  - 2
+  defense_max: 80
+- name: G. Ebony Braces α
+  slots: []
+  defense_max: 80
+- name: G. Ebony Coil α
+  slots:
+  - 2
+  defense_max: 80
+- name: G. Ebony Greaves α
+  slots:
+  - 2
+  defense_max: 80
+- name: G. Ebony Helm β
+  slots:
+  - 2
+  defense_max: 80
+- name: G. Ebony Mail β
+  slots:
+  - 2
+  - 2
+  defense_max: 80
+- name: G. Ebony Braces β
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: G. Ebony Coil β
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: G. Ebony Greaves β
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: G. Fulgur Helm α
+  slots: []
+  defense_max: 80
+- name: G. Fulgur Mail α
+  slots:
+  - 2
+  defense_max: 80
+- name: G. Fulgur Vambraces α
+  slots:
+  - 1
+  defense_max: 80
+- name: G. Fulgur Coil α
+  slots:
+  - 1
+  - 1
+  defense_max: 80
+- name: G. Fulgur Greaves α
+  slots:
+  - 1
+  defense_max: 80
+- name: G. Fulgur Helm β
+  slots:
+  - 2
+  defense_max: 80
+- name: G. Fulgur Mail β
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 80
+- name: G. Fulgur Vambraces β
+  slots:
+  - 2
+  - 2
+  defense_max: 80
+- name: G. Fulgur Coil β
+  slots:
+  - 2
+  - 2
+  defense_max: 80
+- name: G. Fulgur Greaves β
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: G. Rathalos Helm α
+  slots:
+  - 1
+  - 1
+  defense_max: 80
+- name: G. Rathalos Mail α
+  slots:
+  - 1
+  defense_max: 80
+- name: G. Rathalos Vambraces α
+  slots:
+  - 2
+  defense_max: 80
+- name: G. Rathalos Coil α
+  slots:
+  - 1
+  - 1
+  defense_max: 80
+- name: G. Rathalos Greaves α
+  slots:
+  - 1
+  defense_max: 80
+- name: G. Rathalos Helm β
+  slots:
+  - 2
+  - 2
+  defense_max: 80
+- name: G. Rathalos Mail β
+  slots:
+  - 2
+  defense_max: 80
+- name: G. Rathalos Vambraces β
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 80
+- name: G. Rathalos Coil β
+  slots:
+  - 2
+  - 2
+  - 1
+  defense_max: 80
+- name: G. Rathalos Greaves β
+  slots:
+  - 2
+  defense_max: 80
+- name: G. Seikret Coil α
+  slots:
+  - 1
+  defense_max: 76
+- name: G. Seikret Coil β
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Guild Cross Circlet α
+  slots:
+  - 1
+  defense_max: 76
+- name: Guild Cross Suit α
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Guild Cross Vambraces α
+  slots:
+  - 2
+  defense_max: 76
+- name: Guild Cross Coil α
+  slots:
+  - 2
+  defense_max: 76
+- name: Guild Cross Boots α
+  slots:
+  - 2
+  - 2
+  defense_max: 76
+- name: Gypceros Helm α
+  slots:
+  - 1
+  defense_max: 76
+- name: Gypceros Mail α
+  slots:
+  - 1
+  defense_max: 76
+- name: Gypceros Vambraces α
+  slots: []
+  defense_max: 76
+- name: Gypceros Coil α
+  slots:
+  - 1
+  defense_max: 76
+- name: Gypceros Greaves α
+  slots: []
+  defense_max: 76
+- name: Gypceros Helm β
+  slots:
+  - 1
+  - 1
+  defense_max: 76
+- name: Gypceros Mail β
+  slots:
+  - 2
+  defense_max: 76
+- name: Gypceros Vambraces β
+  slots:
+  - 1
+  defense_max: 76
+- name: Gypceros Coil β
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Gypceros Greaves β
+  slots:
+  - 1
+  defense_max: 76
+- name: Half Rim Glasses α
+  slots:
+  - 1
+  defense_max: 80
+- name: Hawkheart Jacket α
+  slots:
+  - 1
+  defense_max: 80
+- name: High Metal Helm α
+  slots:
+  - 2
+  defense_max: 76
+- name: High Metal Mail α
+  slots:
+  - 2
+  defense_max: 76
+- name: High Metal Braces α
+  slots:
+  - 2
+  defense_max: 76
+- name: High Metal Coil α
+  slots:
+  - 2
+  defense_max: 76
+- name: High Metal Greaves α
+  slots:
+  - 2
+  defense_max: 76
+- name: Hirabami Headdress α
+  slots: []
+  defense_max: 78
+- name: Hirabami Mail α
+  slots:
+  - 1
+  defense_max: 78
+- name: Hirabami Vambraces α
+  slots: []
+  defense_max: 78
+- name: Hirabami Coil α
+  slots: []
+  defense_max: 78
+- name: Hirabami Greaves α
+  slots:
+  - 1
+  defense_max: 78
+- name: Hirabami Headdress β
+  slots:
+  - 1
+  - 1
+  defense_max: 78
+- name: Hirabami Mail β
+  slots:
+  - 2
+  defense_max: 78
+- name: Hirabami Vambraces β
+  slots:
+  - 1
+  - 1
+  defense_max: 78
+- name: Hirabami Coil β
+  slots:
+  - 2
+  defense_max: 78
+- name: Hirabami Greaves β
+  slots:
+  - 2
+  defense_max: 78
+- name: Hope Mask α
+  slots:
+  - 1
+  defense_max: 66
+- name: Hope Mail α
+  slots:
+  - 1
+  - 1
+  defense_max: 66
+- name: Hope Vambraces α
+  slots:
+  - 1
+  - 1
+  defense_max: 66
+- name: Hope Coil α
+  slots:
+  - 1
+  defense_max: 66
+- name: Hope Greaves α
+  slots:
+  - 1
+  defense_max: 66
+- name: Ingot Helm α
+  slots:
+  - 2
+  defense_max: 76
+- name: Ingot Mail α
+  slots:
+  - 1
+  - 1
+  defense_max: 76
+- name: Ingot Vambraces α
+  slots:
+  - 2
+  defense_max: 76
+- name: Ingot Coil α
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 76
+- name: Ingot Greaves α
+  slots:
+  - 2
+  defense_max: 76
+- name: King Beetle Vertex α
+  slots:
+  - 2
+  defense_max: 76
+- name: King Beetle Thorax α
+  slots:
+  - 2
+  defense_max: 76
+- name: King Beetle Brachia α
+  slots:
+  - 2
+  defense_max: 76
+- name: King Beetle Elytra α
+  slots:
+  - 2
+  defense_max: 76
+- name: King Beetle Crura α
+  slots:
+  - 2
+  defense_max: 76
+- name: Kranodath Mail α
+  slots: []
+  defense_max: 72
+- name: Kranodath Mail β
+  slots:
+  - 2
+  defense_max: 72
+- name: Kunafa Headgear α
+  slots:
+  - 2
+  defense_max: 76
+- name: Kunafa Cloak α
+  slots:
+  - 2
+  defense_max: 76
+- name: Kunafa Sash α
+  slots:
+  - 2
+  defense_max: 76
+- name: Kunafa Chaps α
+  slots:
+  - 2
+  defense_max: 76
+- name: Kut-Ku Helm α
+  slots:
+  - 1
+  defense_max: 76
+- name: Kut-Ku Mail α
+  slots:
+  - 1
+  defense_max: 76
+- name: Kut-Ku Vambraces α
+  slots:
+  - 1
+  defense_max: 76
+- name: Kut-Ku Coil α
+  slots: []
+  defense_max: 76
+- name: Kut-Ku Greaves α
+  slots:
+  - 2
+  defense_max: 76
+- name: Kut-Ku Helm β
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Kut-Ku Mail β
+  slots:
+  - 2
+  defense_max: 76
+- name: Kut-Ku Vambraces β
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 76
+- name: Kut-Ku Coil β
+  slots:
+  - 1
+  defense_max: 76
+- name: Kut-Ku Greaves β
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Barina Headgear α
+  slots: []
+  defense_max: 76
+- name: Barina Mail α
+  slots: []
+  defense_max: 76
+- name: Barina Vambraces α
+  slots: []
+  defense_max: 76
+- name: Barina Coil α
+  slots:
+  - 2
+  defense_max: 76
+- name: Barina Greaves α
+  slots: []
+  defense_max: 76
+- name: Barina Headgear β
+  slots:
+  - 1
+  defense_max: 76
+- name: Barina Mail β
+  slots:
+  - 1
+  defense_max: 76
+- name: Barina Vambraces β
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Barina Coil β
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Barina Greaves β
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 76
+- name: Leather Headgear α
+  slots:
+  - 1
+  defense_max: 66
+- name: Leather Mail α
+  slots:
+  - 1
+  defense_max: 66
+- name: Leather Gloves α
+  slots:
+  - 1
+  defense_max: 66
+- name: Leather Belt α
+  slots:
+  - 1
+  - 1
+  defense_max: 66
+- name: Leather Pants α
+  slots:
+  - 1
+  defense_max: 66
+- name: Lovely Shades α
+  slots:
+  - 1
+  defense_max: 80
+- name: Melahoa Hat α
+  slots:
+  - 2
+  defense_max: 76
+- name: Melahoa Jacket α
+  slots:
+  - 2
+  defense_max: 76
+- name: Melahoa Branch α
+  slots:
+  - 2
+  defense_max: 76
+- name: Melahoa Folia α
+  slots:
+  - 2
+  defense_max: 76
+- name: Melahoa Roots α
+  slots:
+  - 2
+  defense_max: 76
+- name: Mimiphyta α
+  slots:
+  - 1
+  defense_max: 76
+- name: Mizutsune Helm α
+  slots:
+  - 3
+  defense_max: 80
+- name: Mizutsune Mail α
+  slots:
+  - 1
+  defense_max: 80
+- name: Mizutsune Braces α
+  slots:
+  - 1
+  defense_max: 80
+- name: Mizutsune Coil α
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: Mizutsune Greaves α
+  slots:
+  - 1
+  defense_max: 80
+- name: Mizutsune Helm β
+  slots:
+  - 3
+  - 2
+  defense_max: 80
+- name: Mizutsune Mail β
+  slots:
+  - 2
+  - 2
+  defense_max: 80
+- name: Mizutsune Braces β
+  slots:
+  - 3
+  defense_max: 80
+- name: Mizutsune Coil β
+  slots:
+  - 3
+  - 2
+  - 1
+  defense_max: 80
+- name: Mizutsune Greaves β
+  slots:
+  - 3
+  defense_max: 80
+- name: Nerscylla Helm α
+  slots: []
+  defense_max: 78
+- name: Nerscylla Mail α
+  slots: []
+  defense_max: 78
+- name: Nerscylla Vambraces α
+  slots:
+  - 1
+  defense_max: 78
+- name: Nerscylla Coil α
+  slots: []
+  defense_max: 78
+- name: Nerscylla Greaves α
+  slots:
+  - 1
+  defense_max: 78
+- name: Nerscylla Helm β
+  slots:
+  - 2
+  defense_max: 78
+- name: Nerscylla Mail β
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 78
+- name: Nerscylla Vambraces β
+  slots:
+  - 2
+  defense_max: 78
+- name: Nerscylla Coil β
+  slots:
+  - 1
+  - 1
+  defense_max: 78
+- name: Nerscylla Greaves β
+  slots:
+  - 2
+  - 1
+  defense_max: 78
+- name: Piragill Greaves α
+  slots: []
+  defense_max: 72
+- name: Piragill Greaves β
+  slots:
+  - 2
+  defense_max: 72
+- name: Quematrice Helm α
+  slots:
+  - 1
+  defense_max: 76
+- name: Quematrice Mail α
+  slots: []
+  defense_max: 76
+- name: Quematrice Braces α
+  slots:
+  - 1
+  - 1
+  defense_max: 76
+- name: Quematrice Coil α
+  slots: []
+  defense_max: 76
+- name: Quematrice Greaves α
+  slots:
+  - 1
+  defense_max: 76
+- name: Quematrice Helm β
+  slots:
+  - 2
+  defense_max: 76
+- name: Quematrice Mail β
+  slots:
+  - 1
+  defense_max: 76
+- name: Quematrice Braces β
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Quematrice Coil β
+  slots:
+  - 2
+  defense_max: 76
+- name: Quematrice Greaves β
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 76
+- name: Rathalos Helm α
+  slots:
+  - 1
+  - 1
+  defense_max: 80
+- name: Rathalos Mail α
+  slots:
+  - 1
+  defense_max: 80
+- name: Rathalos Vambraces α
+  slots:
+  - 1
+  - 1
+  defense_max: 80
+- name: Rathalos Coil α
+  slots: []
+  defense_max: 80
+- name: Rathalos Greaves α
+  slots:
+  - 2
+  defense_max: 80
+- name: Rathalos Helm β
+  slots:
+  - 2
+  - 2
+  defense_max: 80
+- name: Rathalos Mail β
+  slots:
+  - 1
+  - 1
+  defense_max: 80
+- name: Rathalos Vambraces β
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 80
+- name: Rathalos Coil β
+  slots:
+  - 2
+  defense_max: 80
+- name: Rathalos Greaves β
+  slots:
+  - 2
+  - 2
+  - 1
+  defense_max: 80
+- name: Rathian Helm α
+  slots:
+  - 2
+  defense_max: 78
+- name: Rathian Mail α
+  slots: []
+  defense_max: 78
+- name: Rathian Vambraces α
+  slots: []
+  defense_max: 78
+- name: Rathian Coil α
+  slots: []
+  defense_max: 78
+- name: Rathian Greaves α
+  slots: []
+  defense_max: 78
+- name: Rathian Helm β
+  slots:
+  - 2
+  - 1
+  defense_max: 78
+- name: Rathian Mail β
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 78
+- name: Rathian Vambraces β
+  slots:
+  - 1
+  defense_max: 78
+- name: Rathian Coil β
+  slots:
+  - 2
+  defense_max: 78
+- name: Rathian Greaves β
+  slots:
+  - 1
+  defense_max: 78
+- name: Rompopolo Helm α
+  slots:
+  - 1
+  - 1
+  defense_max: 76
+- name: Rompopolo Mail α
+  slots:
+  - 1
+  defense_max: 76
+- name: Rompopolo Vambraces α
+  slots:
+  - 1
+  defense_max: 76
+- name: Rompopolo Coil α
+  slots: []
+  defense_max: 76
+- name: Rompopolo Greaves α
+  slots: []
+  defense_max: 76
+- name: Rompopolo Helm β
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Rompopolo Mail β
+  slots:
+  - 2
+  defense_max: 76
+- name: Rompopolo Vambraces β
+  slots:
+  - 2
+  defense_max: 76
+- name: Rompopolo Coil β
+  slots:
+  - 1
+  defense_max: 76
+- name: Rompopolo Greaves β
+  slots:
+  - 2
+  defense_max: 76
+- name: Sakuratide Headgear α
+  slots: []
+  defense_max: 76
+- name: Sakuratide Robe α
+  slots:
+  - 2
+  defense_max: 76
+- name: Sakuratide Bracers α
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Sakuratide Obi α
+  slots:
+  - 2
+  - 1
+  defense_max: 76
+- name: Sakuratide Hakama α
+  slots:
+  - 2
+  defense_max: 76
+- name: Sealed Dragon Cloth α
+  slots: []
+  defense_max: 80
+- name: Sild Hood α
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 76
+- name: Sild Coat α
+  slots:
+  - 2
+  defense_max: 76
+- name: Square Glasses α
+  slots:
+  - 1
+  - 1
+  defense_max: 80
+- name: Strategist Spectacles α
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 80
+- name: Suja Sash α
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 76
+- name: Talioth Vambraces α
+  slots: []
+  defense_max: 72
+- name: Talioth Vambraces β
+  slots:
+  - 2
+  - 1
+  defense_max: 72
+- name: Vespoid Helm α
+  slots: []
+  defense_max: 72
+- name: Vespoid Mail α
+  slots:
+  - 1
+  defense_max: 72
+- name: Vespoid Vambraces α
+  slots: []
+  defense_max: 72
+- name: Vespoid Coil α
+  slots:
+  - 1
+  defense_max: 72
+- name: Vespoid Greaves α
+  slots:
+  - 1
+  - 1
+  defense_max: 72
+- name: Vespoid Helm β
+  slots:
+  - 2
+  defense_max: 72
+- name: Vespoid Mail β
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 72
+- name: Vespoid Vambraces β
+  slots:
+  - 2
+  defense_max: 72
+- name: Vespoid Coil β
+  slots:
+  - 1
+  - 1
+  - 1
+  defense_max: 72
+- name: Vespoid Greaves β
+  slots:
+  - 2
+  - 1
+  defense_max: 72
+- name: Xu Wu Helm α
+  slots:
+  - 1
+  defense_max: 80
+- name: Xu Wu Mail α
+  slots: []
+  defense_max: 80
+- name: Xu Wu Vambraces α
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: Xu Wu Coil α
+  slots:
+  - 2
+  defense_max: 80
+- name: Xu Wu Greaves α
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: Xu Wu Helm β
+  slots:
+  - 2
+  - 1
+  defense_max: 80
+- name: Xu Wu Mail β
+  slots:
+  - 1
+  - 1
+  defense_max: 80
+- name: Xu Wu Vambraces β
+  slots:
+  - 2
+  - 2
+  - 1
+  defense_max: 80
+- name: Xu Wu Coil β
+  slots:
+  - 2
+  - 1
+  - 1
+  defense_max: 80
+- name: Xu Wu Greaves β
+  slots:
+  - 2
+  - 2
+  - 1
+  defense_max: 80

@@ -77,6 +77,42 @@ class DataInvariants(unittest.TestCase):
                 self.assertLessEqual(s.level, max_level[s.name], piece.name)
 
 
+class RanksAndTranscending(unittest.TestCase):
+    def test_ranks_split_by_rarity(self):
+        # The Filters tab offers High and Low Rank as separate switches; a
+        # piece filed under the wrong rank would follow the wrong one.
+        for piece in game().armor:
+            self.assertIn(piece.rank, ("high", "low"), piece.name)
+            if piece.rank == "low":
+                self.assertLessEqual(piece.rarity, 4, piece.name)
+                self.assertEqual(piece.slots_source, "base", piece.name)
+            else:
+                self.assertGreaterEqual(piece.rarity, 5, piece.name)
+
+    def test_every_transcended_piece_has_untranscended_values(self):
+        # Switching transcending off swaps these in; a piece without them
+        # would stay transcended with nothing on screen saying so.
+        for piece in game().armor:
+            if piece.slots_source == "transcended":
+                self.assertIsNotNone(piece.untranscended, piece.name)
+            else:
+                self.assertIsNone(piece.untranscended, piece.name)
+
+    def test_transcending_only_ever_improves_a_piece(self):
+        # A per-slot comparison, largest first, so "[3,1,1] from [2]" passes
+        # and a transcended list that lost a slot would not.
+        for piece in game().armor:
+            before = piece.untranscended
+            if before is None:
+                continue
+            self.assertLess(before.defense_max, piece.defense.max, piece.name)
+            after = sorted((s for s in piece.slots if s), reverse=True)
+            base = sorted((s for s in before.slots if s), reverse=True)
+            self.assertGreaterEqual(len(after), len(base), piece.name)
+            for a, b in zip(after, base):
+                self.assertGreaterEqual(a, b, piece.name)
+
+
 class LoadSkills(unittest.TestCase):
     def _write(self, payload) -> Path:
         handle = tempfile.NamedTemporaryFile(

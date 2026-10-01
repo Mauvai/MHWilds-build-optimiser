@@ -11,6 +11,8 @@ DATA_DIR = Path(__file__).resolve().parent
 
 SKILLS_PATH = DATA_DIR / "skills_default.yaml"
 ARMOR_PATH = DATA_DIR / "high_rank_armor.yaml"
+LOW_RANK_ARMOR_PATH = DATA_DIR / "low_rank_armor.yaml"
+UNTRANSCENDED_PATH = DATA_DIR / "armor_untranscended.yaml"
 TALISMANS_PATH = DATA_DIR / "craftable_talismans.yaml"
 DECORATIONS_PATH = DATA_DIR / "decorations.yaml"
 
@@ -76,6 +78,18 @@ class SetBonus:
 
 
 @dataclass
+class Untranscended:
+    """A transcendable piece as it is before Armor Transcending.
+
+    Only the values transcending changes: the slots and the maximum
+    defence. Base defence, skills and resistances are the same either way.
+    """
+
+    slots: list[int]
+    defense_max: int
+
+
+@dataclass
 class ArmorPiece:
     name: str
     piece_type: str
@@ -88,6 +102,11 @@ class ArmorPiece:
     slots_source: str
     set_bonuses: list[SetBonus]
     source_url: str
+    # Defaulted, and so last, because the High Rank file predates both and
+    # does not repeat them: every piece in it is High Rank, and its
+    # untranscended values live in armor_untranscended.yaml.
+    rank: str = "high"
+    untranscended: Untranscended | None = None
 
 
 @dataclass
@@ -170,9 +189,9 @@ def skill_record(skill: Skill) -> dict:
     return record
 
 
-def load_armor() -> list[ArmorPiece]:
+def load_armor(path: Path = ARMOR_PATH) -> list[ArmorPiece]:
     pieces = []
-    for raw in _load_yaml(ARMOR_PATH):
+    for raw in _load_yaml(path):
         pieces.append(
             ArmorPiece(
                 name=raw["name"],
@@ -193,8 +212,38 @@ def load_armor() -> list[ArmorPiece]:
                     for sb in raw.get("set_bonuses", [])
                 ],
                 source_url=raw["source_url"],
+                rank=raw.get("rank", "high"),
             )
         )
+    return pieces
+
+
+def load_untranscended(path: Path = UNTRANSCENDED_PATH) -> dict[str, Untranscended]:
+    """Piece name -> its values before transcending."""
+    return {
+        raw["name"]: Untranscended(slots=raw["slots"], defense_max=raw["defense_max"])
+        for raw in _load_yaml(path)
+    }
+
+
+def load_all_armor() -> list[ArmorPiece]:
+    """High Rank then Low Rank, with untranscended values attached.
+
+    A name in the untranscended file that matches no transcended piece is
+    refused rather than skipped: it means one of the two files was renamed
+    or edited without the other, and a skipped record would quietly leave
+    that piece transcended when transcending is switched off.
+    """
+    pieces = load_armor(ARMOR_PATH) + load_armor(LOW_RANK_ARMOR_PATH)
+    transcended = {p.name: p for p in pieces if p.slots_source == "transcended"}
+    for name, values in load_untranscended().items():
+        piece = transcended.get(name)
+        if piece is None:
+            raise ValueError(
+                f"{UNTRANSCENDED_PATH.name} lists {name!r}, which is not a "
+                "transcended piece in the armour data."
+            )
+        piece.untranscended = values
     return pieces
 
 
@@ -234,7 +283,7 @@ def load_decorations() -> list[Decoration]:
 def load_game_data() -> GameData:
     return GameData(
         skills=load_skills(),
-        armor=load_armor(),
+        armor=load_all_armor(),
         talismans=load_talismans(),
         decorations=load_decorations(),
     )

@@ -102,9 +102,11 @@ class Section:
 def compare_armor(local: list[ArmorPiece], api: list[dict]) -> Section:
     """High Rank pieces by name.
 
-    Slots are compared only for pieces whose local slots are the base ones:
-    for the rest the file deliberately lists transcended slots, which the
-    API does not give, so every one would read as a difference.
+    The API gives slots before transcending. A base-slot piece is compared
+    on its own slots; a transcended one on its untranscended slots from
+    armor_untranscended.yaml, since its listed slots are transcended and
+    every one would read as a difference. Low Rank pieces are the API's own
+    records, copied rather than compiled, so they are not compared here.
     """
     section = Section("Armour (High Rank)")
     local_by_name = {p.name: p for p in local}
@@ -116,8 +118,13 @@ def compare_armor(local: list[ArmorPiece], api: list[dict]) -> Section:
         piece, record = local_by_name[name], api_by_name[name]
         if "kind" in record and record["kind"] != piece.piece_type:
             section.changed.append(f"{name}: slot {piece.piece_type} here, {record['kind']} in the API")
+        base_slots = None
         if piece.slots_source == "base":
-            here = sorted((s for s in piece.slots if s), reverse=True)
+            base_slots = piece.slots
+        elif piece.untranscended is not None:
+            base_slots = piece.untranscended.slots
+        if base_slots is not None:
+            here = sorted((s for s in base_slots if s), reverse=True)
             there = sorted(record.get("slots", []), reverse=True)
             if here != there:
                 section.changed.append(f"{name}: slots {here} here, {there} in the API")
@@ -232,7 +239,7 @@ def main() -> int:
 
     game = load_game_data()
     sections = [
-        compare_armor(game.armor, payloads["armor"]),
+        compare_armor([p for p in game.armor if p.rank == "high"], payloads["armor"]),
         compare_decorations(game.decorations, payloads["decorations"]),
         compare_skills(game.skills, payloads["skills"]),
     ]

@@ -1,6 +1,6 @@
 # Monster Hunter Wilds Build Optimiser
 
-Describe the build you want instead of scrolling through armour piece by piece. You assign a **weight** to each skill, "how much do I care about this?", and a **level weight**, "how much do further levels matter?", and the optimiser searches every High Rank armor piece, craftable talisman and decoration for the combinations that score best against your weighting.
+Describe the build you want instead of scrolling through armour piece by piece. You assign a **weight** to each skill, "how much do I care about this?", and a **level weight**, "how much do further levels matter?", and the optimiser searches every armor piece, High and Low Rank, every craftable talisman and decoration for the combinations that score best against your weighting.
 
 One deliberate choice: it does not return ten near-identical builds. Results are banded into *closest variants*, *distinct builds* (built from different pieces) and *distinct bonuses* (set or group bonus effects not already in the list).
 
@@ -151,11 +151,13 @@ The optimiser sees a deliberately narrow slice of the game:
 
 | Included | Excluded | Why |
 | --- | --- | --- |
-| High Rank armor only | Low Rank armor | Not the tool's target |
+| High and Low Rank armor, transcended or not | Layered armour | Cosmetic only |
 | Craftable talismans | Appraised talismans | Random skills and slots can't be enumerated, so build equivalents in the Custom Talismans tab instead |
 | Armor and weapon jewels | Weapons themselves | You supply your weapon's slot sizes and the jewels go in them; the weapon's own built-in skills aren't modelled |
 
-All game data was compiled by hand from the community wiki at [game8.co](https://game8.co/games/Monster-Hunter-Wilds). Every record carries a `source_url` back to its page, and the file headers list the source archives. Set bonus skills use their 2-piece/4-piece tiers as levels; group and food skills are on/off with no levels. The one exception is each skill's `levels` list, what each level actually does in the game's own words (Fire Resistance 3 is "Fire resistance +20 Defense +10"), shown under the description when you click a skill. Game8 has no machine-readable export and keeps that text on one page per skill, so it was pulled in a single request from the [Wilds API](https://wilds.mhdb.io/en/skills), which carries the in-game strings; spot checks against game8's skill pages agree on every number. Food skills have no per-level text in either source. The skill file also records each skill's *scaling* class (linear, geometric, and so on), inferred from how the numeric effect grows across levels, useful context when choosing weights, though it doesn't feed the optimiser directly.
+The High Rank armour, talismans, jewels and skills were compiled by hand from the community wiki at [game8.co](https://game8.co/games/Monster-Hunter-Wilds). Every record carries a `source_url` back to its page, and the file headers list the source archives. Set bonus skills use their 2-piece/4-piece tiers as levels; group and food skills are on/off with no levels. The one exception is each skill's `levels` list, what each level actually does in the game's own words (Fire Resistance 3 is "Fire resistance +20 Defense +10"), shown under the description when you click a skill. Game8 has no machine-readable export and keeps that text on one page per skill, so it was pulled in a single request from the [Wilds API](https://wilds.mhdb.io/en/skills), which carries the in-game strings; spot checks against game8's skill pages agree on every number. Food skills have no per-level text in either source. The skill file also records each skill's *scaling* class (linear, geometric, and so on), inferred from how the numeric effect grows across levels, useful context when choosing weights, though it doesn't feed the optimiser directly.
+
+Two armour files came from the [Wilds API](https://wilds.mhdb.io) instead, and say so in their headers. `low_rank_armor.yaml` is every Low Rank piece, copied as the API has it, with `rank: low` added; Low Rank was outside the tool's scope until the Filters tab could switch it on and off, and the API is the only machine-readable source for it. `armor_untranscended.yaml` holds, for each of the 381 pieces whose High Rank slots are listed transcended, the slots and maximum defence it has *before* Armor Transcending, which is what the API reports. Transcending adds 14 maximum defence at rarity 5 and 10 at rarity 6 and upgrades the slots; base defence, skills and resistances don't change. `load_data.py` attaches those values to their pieces and refuses a name that matches no transcended piece, because a skipped record would leave that piece transcended when transcending is switched off.
 
 Need current record counts? Run `python load_data.py` instead of trusting any number written down; the data files are updated more often than this document.
 
@@ -167,7 +169,7 @@ python check_data.py
 
 compares the local files against the [Wilds API](https://wilds.mhdb.io) and lists what differs: High Rank pieces, jewels and armour/weapon skills that exist on one side only, and records that disagree on slot type, slots, skills, jewel size or max level. **It reports and never writes.** The local files hold things the API doesn't provide, transcended slot values and game8 source URLs among them, and where the two disagree it isn't known in advance which side is wrong, so the report says where to look rather than choosing. `--save-api DIR` keeps the fetched JSON, and `--api-dir DIR` compares against it again offline. Exit status is 0 when nothing differs, 1 when something does, 2 when the API couldn't be read.
 
-Two things are deliberately not compared. Slots are skipped for transcended pieces, because the API gives base slots and every one would read as a difference; and defence, which the two sources measure differently (the local maximum runs higher than the API's for the same piece). Talismans, and set bonus, group and food skills, aren't checked yet.
+Transcended pieces are compared on their untranscended slots, since those are what the API gives. Defence isn't compared: the High Rank file's maximum is the transcended one, so it runs higher than the API's for every transcendable piece by design. Low Rank pieces aren't compared either, being the API's own records. Talismans, and set bonus, group and food skills, aren't checked yet.
 
 The first run against real data already found one: the local file lists *Sealed Dragon Cloth α* as a chest piece where the API has it as a head, and *Pinion Necklace α* as a head the API's head list doesn't contain. Worth checking in game before trusting either.
 
@@ -193,6 +195,7 @@ The GUI tests never open a window: they call `SkillsGui` methods on stand-in obj
 | `search_profile.py` | The search profile format: loading with shape checks, `profile_problems` against the game data, saving |
 | `load_data.py` | Typed dataclasses (`Skill`, `ArmorPiece`, `Talisman`, `Decoration`) and loaders with validation (it refuses to treat a results file as a skills DB, for example). Run it directly for record counts |
 | `skills_default.yaml` | Every skill: armor, weapon, set bonus, group and food, with descriptions, max level, per-level effects, scaling class and per-source URLs. `weight`/`level_weight` start at 0 placeholders |
+| `low_rank_armor.yaml`, `armor_untranscended.yaml` | Low Rank pieces, and the pre-transcending slots and defence of transcendable High Rank ones, both from the Wilds API; see [Data scope](#data-scope) |
 | `high_rank_armor.yaml` | All High Rank pieces: defense, resistances, skills, transcended slot values where applicable (`slots_source` says which are listed) and the set/group bonuses each piece participates in |
 | `craftable_talismans.yaml` | Smithy-crafted charms only. Craftables carry no decoration slots, but the schema keeps a placeholder for custom ones built in the GUI |
 | `decorations.yaml` | Armor and weapon jewels with their slot sizes and skills |

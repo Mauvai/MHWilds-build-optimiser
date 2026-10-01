@@ -1,0 +1,3647 @@
+# Monster Hunter Wilds -- Low Rank Armor Pieces
+# Source: the Wilds API, https://wilds.mhdb.io (data version 2026-04-15),
+# every piece of /en/armor/sets whose rank is "low". Unlike the High Rank
+# file this was not compiled from game8: it is the API's own record, so
+# 'source_url' points at the piece's API entry. Same schema as
+# high_rank_armor.yaml, plus 'rank: low'. Low Rank armour cannot be
+# transcended, so 'slots' and 'defense' are the piece's only values and
+# 'slots_source' is always 'base'. Set and group bonuses use the same names
+# and tiers as the High Rank file; every one of them also appears there.
+- name: Quematrice Helm
+  piece_type: head
+  set: Quematrice
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: 2
+    water: -3
+    thunder: 0
+    ice: -1
+    dragon: 0
+  skills:
+  - name: Flinch Free
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/6
+- name: Quematrice Mail
+  piece_type: chest
+  set: Quematrice
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: 2
+    water: -3
+    thunder: 0
+    ice: -1
+    dragon: 0
+  skills:
+  - name: Fire Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/7
+- name: Quematrice Braces
+  piece_type: arms
+  set: Quematrice
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: 2
+    water: -3
+    thunder: 0
+    ice: -1
+    dragon: 0
+  skills:
+  - name: Flinch Free
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/8
+- name: Quematrice Coil
+  piece_type: waist
+  set: Quematrice
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: 2
+    water: -3
+    thunder: 0
+    ice: -1
+    dragon: 0
+  skills:
+  - name: Fire Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/9
+- name: Quematrice Greaves
+  piece_type: legs
+  set: Quematrice
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: 2
+    water: -3
+    thunder: 0
+    ice: -1
+    dragon: 0
+  skills:
+  - name: Flinch Free
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/10
+- name: Hirabami Headdress
+  piece_type: head
+  set: Hirabami
+  rank: low
+  rarity: 3
+  defense:
+    base: 22
+    max: 38
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -2
+    ice: 3
+    dragon: 0
+  skills:
+  - name: Recovery Speed
+    level: 1
+  - name: Evade Window
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/31
+- name: Hirabami Mail
+  piece_type: chest
+  set: Hirabami
+  rank: low
+  rarity: 3
+  defense:
+    base: 22
+    max: 38
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -2
+    ice: 3
+    dragon: 0
+  skills:
+  - name: Recovery Speed
+    level: 1
+  - name: Evade Window
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/32
+- name: Hirabami Vambraces
+  piece_type: arms
+  set: Hirabami
+  rank: low
+  rarity: 3
+  defense:
+    base: 22
+    max: 38
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -2
+    ice: 3
+    dragon: 0
+  skills:
+  - name: Evade Window
+    level: 1
+  - name: Ice Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/33
+- name: Hirabami Coil
+  piece_type: waist
+  set: Hirabami
+  rank: low
+  rarity: 3
+  defense:
+    base: 22
+    max: 38
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -2
+    ice: 3
+    dragon: 0
+  skills:
+  - name: Evade Window
+    level: 1
+  - name: Ice Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/34
+- name: Hirabami Greaves
+  piece_type: legs
+  set: Hirabami
+  rank: low
+  rarity: 3
+  defense:
+    base: 22
+    max: 38
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -2
+    ice: 3
+    dragon: 0
+  skills:
+  - name: Evade Window
+    level: 1
+  - name: Ice Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/35
+- name: Vespoid Helm
+  piece_type: head
+  set: Vespoid
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: -2
+    water: 1
+    thunder: 1
+    ice: 1
+    dragon: 2
+  skills:
+  - name: Survival Expert
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/56
+- name: Vespoid Mail
+  piece_type: chest
+  set: Vespoid
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: -2
+    water: 1
+    thunder: 1
+    ice: 1
+    dragon: 2
+  skills:
+  - name: Survival Expert
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/57
+- name: Vespoid Vambraces
+  piece_type: arms
+  set: Vespoid
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: -2
+    water: 1
+    thunder: 1
+    ice: 1
+    dragon: 2
+  skills:
+  - name: Paralysis Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/58
+- name: Vespoid Coil
+  piece_type: waist
+  set: Vespoid
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: -2
+    water: 1
+    thunder: 1
+    ice: 1
+    dragon: 2
+  skills:
+  - name: Paralysis Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/59
+- name: Vespoid Greaves
+  piece_type: legs
+  set: Vespoid
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: -2
+    water: 1
+    thunder: 1
+    ice: 1
+    dragon: 2
+  skills:
+  - name: Survival Expert
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/60
+- name: Doshaguma Helm
+  piece_type: head
+  set: Doshaguma
+  rank: low
+  rarity: 2
+  defense:
+    base: 16
+    max: 36
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -1
+    ice: -1
+    dragon: 4
+  skills:
+  - name: Free Meal
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Doshaguma's Might Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Powerhouse I
+      pieces_required: 2
+    - skill: Powerhouse II
+      pieces_required: 4
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/61
+- name: Doshaguma Mail
+  piece_type: chest
+  set: Doshaguma
+  rank: low
+  rarity: 2
+  defense:
+    base: 16
+    max: 36
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -1
+    ice: -1
+    dragon: 4
+  skills:
+  - name: Free Meal
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Doshaguma's Might Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Powerhouse I
+      pieces_required: 2
+    - skill: Powerhouse II
+      pieces_required: 4
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/62
+- name: Doshaguma Braces
+  piece_type: arms
+  set: Doshaguma
+  rank: low
+  rarity: 2
+  defense:
+    base: 16
+    max: 36
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -1
+    ice: -1
+    dragon: 4
+  skills:
+  - name: Recovery Speed
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Doshaguma's Might Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Powerhouse I
+      pieces_required: 2
+    - skill: Powerhouse II
+      pieces_required: 4
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/63
+- name: Doshaguma Coil
+  piece_type: waist
+  set: Doshaguma
+  rank: low
+  rarity: 2
+  defense:
+    base: 16
+    max: 36
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -1
+    ice: -1
+    dragon: 4
+  skills:
+  - name: Item Prolonger
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Doshaguma's Might Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Powerhouse I
+      pieces_required: 2
+    - skill: Powerhouse II
+      pieces_required: 4
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/64
+- name: Doshaguma Greaves
+  piece_type: legs
+  set: Doshaguma
+  rank: low
+  rarity: 2
+  defense:
+    base: 16
+    max: 36
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -1
+    ice: -1
+    dragon: 4
+  skills:
+  - name: Free Meal
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Doshaguma's Might Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Powerhouse I
+      pieces_required: 2
+    - skill: Powerhouse II
+      pieces_required: 4
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/65
+- name: G. Seikret Coil
+  piece_type: waist
+  set: Guardian Seikret
+  rank: low
+  rarity: 4
+  defense:
+    base: 22
+    max: 36
+  resistances:
+    fire: 0
+    water: 0
+    thunder: 4
+    ice: 0
+    dragon: -3
+  skills:
+  - name: Jump Master
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/81
+- name: G. Arkveld Helm
+  piece_type: head
+  set: Guardian Arkveld
+  rank: low
+  rarity: 4
+  defense:
+    base: 30
+    max: 44
+  resistances:
+    fire: 2
+    water: 0
+    thunder: -1
+    ice: 0
+    dragon: -4
+  skills:
+  - name: Flayer
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Guardian Arkveld's Vitality Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Decimator I
+      pieces_required: 2
+    - skill: Decimator II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/109
+- name: G. Arkveld Mail
+  piece_type: chest
+  set: Guardian Arkveld
+  rank: low
+  rarity: 4
+  defense:
+    base: 30
+    max: 44
+  resistances:
+    fire: 2
+    water: 0
+    thunder: -1
+    ice: 0
+    dragon: -4
+  skills:
+  - name: Flayer
+    level: 1
+  - name: Blight Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Guardian Arkveld's Vitality Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Decimator I
+      pieces_required: 2
+    - skill: Decimator II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/110
+- name: G. Arkveld Vambraces
+  piece_type: arms
+  set: Guardian Arkveld
+  rank: low
+  rarity: 4
+  defense:
+    base: 30
+    max: 44
+  resistances:
+    fire: 2
+    water: 0
+    thunder: -1
+    ice: 0
+    dragon: -4
+  skills:
+  - name: Flayer
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Guardian Arkveld's Vitality Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Decimator I
+      pieces_required: 2
+    - skill: Decimator II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/111
+- name: G. Arkveld Coil
+  piece_type: waist
+  set: Guardian Arkveld
+  rank: low
+  rarity: 4
+  defense:
+    base: 30
+    max: 44
+  resistances:
+    fire: 2
+    water: 0
+    thunder: -1
+    ice: 0
+    dragon: -4
+  skills:
+  - name: Blight Resistance
+    level: 1
+  slots:
+  - 1
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Guardian Arkveld's Vitality Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Decimator I
+      pieces_required: 2
+    - skill: Decimator II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/112
+- name: G. Arkveld Greaves
+  piece_type: legs
+  set: Guardian Arkveld
+  rank: low
+  rarity: 4
+  defense:
+    base: 30
+    max: 44
+  resistances:
+    fire: 2
+    water: 0
+    thunder: -1
+    ice: 0
+    dragon: -4
+  skills:
+  - name: Blight Resistance
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Guardian Arkveld's Vitality Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Decimator I
+      pieces_required: 2
+    - skill: Decimator II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/113
+- name: Kranodath Mail
+  piece_type: chest
+  set: Kranodath
+  rank: low
+  rarity: 3
+  defense:
+    base: 16
+    max: 32
+  resistances:
+    fire: 4
+    water: -2
+    thunder: 0
+    ice: -2
+    dragon: 0
+  skills:
+  - name: Flinch Free
+    level: 2
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/140
+- name: G. Doshaguma Helm
+  piece_type: head
+  set: Guardian Doshaguma
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -1
+    ice: -2
+    dragon: 2
+  skills:
+  - name: Heroics
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Doshaguma's Might Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Powerhouse I
+      pieces_required: 2
+    - skill: Powerhouse II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/141
+- name: G. Doshaguma Mail
+  piece_type: chest
+  set: Guardian Doshaguma
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -1
+    ice: -2
+    dragon: 2
+  skills:
+  - name: Heroics
+    level: 1
+  - name: Iron Skin
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Doshaguma's Might Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Powerhouse I
+      pieces_required: 2
+    - skill: Powerhouse II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/142
+- name: G. Doshaguma Braces
+  piece_type: arms
+  set: Guardian Doshaguma
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -1
+    ice: -2
+    dragon: 2
+  skills:
+  - name: Marathon Runner
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Doshaguma's Might Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Powerhouse I
+      pieces_required: 2
+    - skill: Powerhouse II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/143
+- name: G. Doshaguma Coil
+  piece_type: waist
+  set: Guardian Doshaguma
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -1
+    ice: -2
+    dragon: 2
+  skills:
+  - name: Marathon Runner
+    level: 1
+  - name: Heroics
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Doshaguma's Might Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Powerhouse I
+      pieces_required: 2
+    - skill: Powerhouse II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/144
+- name: G. Doshaguma Greaves
+  piece_type: legs
+  set: Guardian Doshaguma
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -3
+    water: 2
+    thunder: -1
+    ice: -2
+    dragon: 2
+  skills:
+  - name: Marathon Runner
+    level: 1
+  - name: Iron Skin
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Doshaguma's Might Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Powerhouse I
+      pieces_required: 2
+    - skill: Powerhouse II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/145
+- name: Rey Sandhelm
+  piece_type: head
+  set: Rey Dau
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 0
+    water: -2
+    thunder: 4
+    ice: -3
+    dragon: 0
+  skills:
+  - name: Latent Power
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Rey Dau's Voltage Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Thunderous Roar I
+      pieces_required: 2
+    - skill: Thunderous Roar II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/162
+- name: Rey Sandmail
+  piece_type: chest
+  set: Rey Dau
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 0
+    water: -2
+    thunder: 4
+    ice: -3
+    dragon: 0
+  skills:
+  - name: Constitution
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Rey Dau's Voltage Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Thunderous Roar I
+      pieces_required: 2
+    - skill: Thunderous Roar II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/163
+- name: Rey Sandbraces
+  piece_type: arms
+  set: Rey Dau
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 0
+    water: -2
+    thunder: 4
+    ice: -3
+    dragon: 0
+  skills:
+  - name: Latent Power
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Rey Dau's Voltage Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Thunderous Roar I
+      pieces_required: 2
+    - skill: Thunderous Roar II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/164
+- name: Rey Sandcoil
+  piece_type: waist
+  set: Rey Dau
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 0
+    water: -2
+    thunder: 4
+    ice: -3
+    dragon: 0
+  skills:
+  - name: Constitution
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Rey Dau's Voltage Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Thunderous Roar I
+      pieces_required: 2
+    - skill: Thunderous Roar II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/165
+- name: Rey Sandgreaves
+  piece_type: legs
+  set: Rey Dau
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 0
+    water: -2
+    thunder: 4
+    ice: -3
+    dragon: 0
+  skills:
+  - name: Constitution
+    level: 1
+  - name: Latent Power
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Rey Dau's Voltage Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Thunderous Roar I
+      pieces_required: 2
+    - skill: Thunderous Roar II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/166
+- name: Gajau Boots
+  piece_type: legs
+  set: Gajau
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: 0
+    water: 5
+    thunder: 0
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Water Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/172
+- name: Xu Wu Helm
+  piece_type: head
+  set: Xu Wu
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 1
+    water: 1
+    thunder: 1
+    ice: -3
+    dragon: 2
+  skills:
+  - name: Maximum Might
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/209
+- name: Xu Wu Mail
+  piece_type: chest
+  set: Xu Wu
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 1
+    water: 1
+    thunder: 1
+    ice: -3
+    dragon: 2
+  skills:
+  - name: Stamina Surge
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/210
+- name: Xu Wu Vambraces
+  piece_type: arms
+  set: Xu Wu
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 1
+    water: 1
+    thunder: 1
+    ice: -3
+    dragon: 2
+  skills:
+  - name: Maximum Might
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/211
+- name: Xu Wu Coil
+  piece_type: waist
+  set: Xu Wu
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 1
+    water: 1
+    thunder: 1
+    ice: -3
+    dragon: 2
+  skills:
+  - name: Stamina Surge
+    level: 1
+  - name: Maximum Might
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/212
+- name: Xu Wu Greaves
+  piece_type: legs
+  set: Xu Wu
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 1
+    water: 1
+    thunder: 1
+    ice: -3
+    dragon: 2
+  skills:
+  - name: Stamina Surge
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/213
+- name: G. Rathalos Helm
+  piece_type: head
+  set: Guardian Rathalos
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 3
+    water: 1
+    thunder: -2
+    ice: 1
+    dragon: -5
+  skills:
+  - name: Weakness Exploit
+    level: 1
+  - name: Intimidator
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Rathalos's Flare Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Scorcher I
+      pieces_required: 2
+    - skill: Scorcher II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/221
+- name: G. Rathalos Mail
+  piece_type: chest
+  set: Guardian Rathalos
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 3
+    water: 1
+    thunder: -2
+    ice: 1
+    dragon: -5
+  skills:
+  - name: Intimidator
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Rathalos's Flare Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Scorcher I
+      pieces_required: 2
+    - skill: Scorcher II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/222
+- name: G. Rathalos Vambraces
+  piece_type: arms
+  set: Guardian Rathalos
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 3
+    water: 1
+    thunder: -2
+    ice: 1
+    dragon: -5
+  skills:
+  - name: Weakness Exploit
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Rathalos's Flare Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Scorcher I
+      pieces_required: 2
+    - skill: Scorcher II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/223
+- name: G. Rathalos Coil
+  piece_type: waist
+  set: Guardian Rathalos
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 3
+    water: 1
+    thunder: -2
+    ice: 1
+    dragon: -5
+  skills:
+  - name: Intimidator
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Rathalos's Flare Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Scorcher I
+      pieces_required: 2
+    - skill: Scorcher II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/224
+- name: G. Rathalos Greaves
+  piece_type: legs
+  set: Guardian Rathalos
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 3
+    water: 1
+    thunder: -2
+    ice: 1
+    dragon: -5
+  skills:
+  - name: Weakness Exploit
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Rathalos's Flare Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Scorcher I
+      pieces_required: 2
+    - skill: Scorcher II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/225
+- name: Duna Wildhelm
+  piece_type: head
+  set: Uth Duna
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -1
+    water: 4
+    thunder: -3
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Tool Specialist
+    level: 1
+  - name: Peak Performance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Uth Duna's Cover Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Protective Veil I
+      pieces_required: 2
+    - skill: Protective Veil II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/231
+- name: Duna Wildmail
+  piece_type: chest
+  set: Uth Duna
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -1
+    water: 4
+    thunder: -3
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Peak Performance
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Uth Duna's Cover Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Protective Veil I
+      pieces_required: 2
+    - skill: Protective Veil II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/232
+- name: Duna Wildbraces
+  piece_type: arms
+  set: Uth Duna
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -1
+    water: 4
+    thunder: -3
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Tool Specialist
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Uth Duna's Cover Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Protective Veil I
+      pieces_required: 2
+    - skill: Protective Veil II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/233
+- name: Duna Wildcoil
+  piece_type: waist
+  set: Uth Duna
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -1
+    water: 4
+    thunder: -3
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Aquatic/Oilsilt Mobility
+    level: 1
+  - name: Tool Specialist
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Uth Duna's Cover Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Protective Veil I
+      pieces_required: 2
+    - skill: Protective Veil II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/234
+- name: Duna Wildgreaves
+  piece_type: legs
+  set: Uth Duna
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -1
+    water: 4
+    thunder: -3
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Peak Performance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Uth Duna's Cover Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Protective Veil I
+      pieces_required: 2
+    - skill: Protective Veil II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/235
+- name: Barina Headgear
+  piece_type: head
+  set: Lala Barina
+  rank: low
+  rarity: 1
+  defense:
+    base: 8
+    max: 28
+  resistances:
+    fire: -3
+    water: 3
+    thunder: 0
+    ice: 0
+    dragon: 3
+  skills:
+  - name: Paralysis Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/242
+- name: Barina Mail
+  piece_type: chest
+  set: Lala Barina
+  rank: low
+  rarity: 1
+  defense:
+    base: 8
+    max: 28
+  resistances:
+    fire: -3
+    water: 3
+    thunder: 0
+    ice: 0
+    dragon: 3
+  skills:
+  - name: Paralysis Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/243
+- name: Barina Vambraces
+  piece_type: arms
+  set: Lala Barina
+  rank: low
+  rarity: 1
+  defense:
+    base: 8
+    max: 28
+  resistances:
+    fire: -3
+    water: 3
+    thunder: 0
+    ice: 0
+    dragon: 3
+  skills:
+  - name: Recovery Up
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/244
+- name: Barina Coil
+  piece_type: waist
+  set: Lala Barina
+  rank: low
+  rarity: 1
+  defense:
+    base: 8
+    max: 28
+  resistances:
+    fire: -3
+    water: 3
+    thunder: 0
+    ice: 0
+    dragon: 3
+  skills:
+  - name: Recovery Up
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/245
+- name: Barina Greaves
+  piece_type: legs
+  set: Lala Barina
+  rank: low
+  rarity: 1
+  defense:
+    base: 8
+    max: 28
+  resistances:
+    fire: -3
+    water: 3
+    thunder: 0
+    ice: 0
+    dragon: 3
+  skills:
+  - name: Recovery Up
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/246
+- name: Hope Mask
+  piece_type: head
+  set: Hope
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 1
+    water: 0
+    thunder: 1
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Stun Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/247
+- name: Hope Mail
+  piece_type: chest
+  set: Hope
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 1
+    water: 0
+    thunder: 1
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Divine Blessing
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/248
+- name: Hope Vambraces
+  piece_type: arms
+  set: Hope
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 1
+    water: 0
+    thunder: 1
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Divine Blessing
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/249
+- name: Hope Coil
+  piece_type: waist
+  set: Hope
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 1
+    water: 0
+    thunder: 1
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Stun Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/250
+- name: Hope Greaves
+  piece_type: legs
+  set: Hope
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 1
+    water: 0
+    thunder: 1
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Divine Blessing
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/251
+- name: Leather Headgear
+  piece_type: head
+  set: Leather
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 2
+    water: 0
+    thunder: 0
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Botanist
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/252
+- name: Leather Vest
+  piece_type: chest
+  set: Leather
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 2
+    water: 0
+    thunder: 0
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Botanist
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/253
+- name: Leather Gloves
+  piece_type: arms
+  set: Leather
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 2
+    water: 0
+    thunder: 0
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Hunger Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/254
+- name: Leather Belt
+  piece_type: waist
+  set: Leather
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 2
+    water: 0
+    thunder: 0
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Botanist
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/255
+- name: Leather Pants
+  piece_type: legs
+  set: Leather
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 2
+    water: 0
+    thunder: 0
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Botanist
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/256
+- name: Chainmail Headgear
+  piece_type: head
+  set: Chainmail
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 0
+    water: 2
+    thunder: 0
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Geologist
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/257
+- name: Chainmail Vest
+  piece_type: chest
+  set: Chainmail
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 0
+    water: 2
+    thunder: 0
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Geologist
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/258
+- name: Chainmail Gloves
+  piece_type: arms
+  set: Chainmail
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 0
+    water: 2
+    thunder: 0
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Geologist
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/259
+- name: Chainmail Belt
+  piece_type: waist
+  set: Chainmail
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 0
+    water: 2
+    thunder: 0
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Recovery Speed
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/260
+- name: Chainmail Pants
+  piece_type: legs
+  set: Chainmail
+  rank: low
+  rarity: 1
+  defense:
+    base: 2
+    max: 22
+  resistances:
+    fire: 0
+    water: 2
+    thunder: 0
+    ice: 0
+    dragon: 0
+  skills:
+  - name: Recovery Speed
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/261
+- name: Bone Helm
+  piece_type: head
+  set: Bone
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: 2
+    water: 0
+    thunder: 2
+    ice: 0
+    dragon: 2
+  skills:
+  - name: Marathon Runner
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/262
+- name: Bone Mail
+  piece_type: chest
+  set: Bone
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: 2
+    water: 0
+    thunder: 2
+    ice: 0
+    dragon: 2
+  skills:
+  - name: Marathon Runner
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/263
+- name: Bone Vambraces
+  piece_type: arms
+  set: Bone
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: 2
+    water: 0
+    thunder: 2
+    ice: 0
+    dragon: 2
+  skills:
+  - name: Stun Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/264
+- name: Bone Coil
+  piece_type: waist
+  set: Bone
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: 2
+    water: 0
+    thunder: 2
+    ice: 0
+    dragon: 2
+  skills:
+  - name: Marathon Runner
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/265
+- name: Bone Greaves
+  piece_type: legs
+  set: Bone
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: 2
+    water: 0
+    thunder: 2
+    ice: 0
+    dragon: 2
+  skills:
+  - name: Stun Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/266
+- name: Alloy Helm
+  piece_type: head
+  set: Alloy
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: -2
+    water: 1
+    thunder: -2
+    ice: -2
+    dragon: 1
+  skills:
+  - name: Quick Sheathe
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/267
+- name: Alloy Mail
+  piece_type: chest
+  set: Alloy
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: -2
+    water: 1
+    thunder: -2
+    ice: -2
+    dragon: 1
+  skills:
+  - name: Tremor Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/268
+- name: Alloy Vambraces
+  piece_type: arms
+  set: Alloy
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: -2
+    water: 1
+    thunder: -2
+    ice: -2
+    dragon: 1
+  skills:
+  - name: Tremor Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/269
+- name: Alloy Coil
+  piece_type: waist
+  set: Alloy
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: -2
+    water: 1
+    thunder: -2
+    ice: -2
+    dragon: 1
+  skills:
+  - name: Tremor Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/270
+- name: Alloy Greaves
+  piece_type: legs
+  set: Alloy
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: -2
+    water: 1
+    thunder: -2
+    ice: -2
+    dragon: 1
+  skills:
+  - name: Quick Sheathe
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/271
+- name: Ingot Helm
+  piece_type: head
+  set: Ingot
+  rank: low
+  rarity: 3
+  defense:
+    base: 16
+    max: 32
+  resistances:
+    fire: -2
+    water: 0
+    thunder: 3
+    ice: -1
+    dragon: 0
+  skills:
+  - name: Divine Blessing
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/272
+- name: Ingot Mail
+  piece_type: chest
+  set: Ingot
+  rank: low
+  rarity: 3
+  defense:
+    base: 16
+    max: 32
+  resistances:
+    fire: -2
+    water: 0
+    thunder: 3
+    ice: -1
+    dragon: 0
+  skills:
+  - name: Windproof
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/273
+- name: Ingot Vambraces
+  piece_type: arms
+  set: Ingot
+  rank: low
+  rarity: 3
+  defense:
+    base: 16
+    max: 32
+  resistances:
+    fire: -2
+    water: 0
+    thunder: 3
+    ice: -1
+    dragon: 0
+  skills:
+  - name: Stun Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/274
+- name: Ingot Coil
+  piece_type: waist
+  set: Ingot
+  rank: low
+  rarity: 3
+  defense:
+    base: 16
+    max: 32
+  resistances:
+    fire: -2
+    water: 0
+    thunder: 3
+    ice: -1
+    dragon: 0
+  skills:
+  - name: Divine Blessing
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/275
+- name: Ingot Greaves
+  piece_type: legs
+  set: Ingot
+  rank: low
+  rarity: 3
+  defense:
+    base: 16
+    max: 32
+  resistances:
+    fire: -2
+    water: 0
+    thunder: 3
+    ice: -1
+    dragon: 0
+  skills:
+  - name: Windproof
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses: []
+  source_url: https://wilds.mhdb.io/en/armor/276
+- name: Talioth Vambraces
+  piece_type: arms
+  set: Talioth
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: 4
+    water: -2
+    thunder: -2
+    ice: -2
+    dragon: 2
+  skills:
+  - name: Leap of Faith
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/277
+- name: Bulaqchi Specs
+  piece_type: head
+  set: Bulaqchi
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: -4
+    water: 1
+    thunder: 1
+    ice: -2
+    dragon: 4
+  skills:
+  - name: Entomologist
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/278
+- name: Comaqchi Accessory
+  piece_type: head
+  set: Comaqchi
+  rank: low
+  rarity: 3
+  defense:
+    base: 16
+    max: 32
+  resistances:
+    fire: -5
+    water: 0
+    thunder: 0
+    ice: 3
+    dragon: 3
+  skills:
+  - name: Sleep Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/387
+- name: G. Ebony Helm
+  piece_type: head
+  set: Guardian Ebony
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -2
+    water: -3
+    thunder: -2
+    ice: -2
+    dragon: 4
+  skills:
+  - name: Burst
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Ebony Odogaron's Power Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Burst Boost I
+      pieces_required: 2
+    - skill: Burst Boost II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/408
+- name: G. Ebony Mail
+  piece_type: chest
+  set: Guardian Ebony
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -2
+    water: -3
+    thunder: -2
+    ice: -2
+    dragon: 4
+  skills:
+  - name: Bleeding Resistance
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Ebony Odogaron's Power Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Burst Boost I
+      pieces_required: 2
+    - skill: Burst Boost II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/409
+- name: G. Ebony Braces
+  piece_type: arms
+  set: Guardian Ebony
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -2
+    water: -3
+    thunder: -2
+    ice: -2
+    dragon: 4
+  skills:
+  - name: Burst
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Ebony Odogaron's Power Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Burst Boost I
+      pieces_required: 2
+    - skill: Burst Boost II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/410
+- name: G. Ebony Coil
+  piece_type: waist
+  set: Guardian Ebony
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -2
+    water: -3
+    thunder: -2
+    ice: -2
+    dragon: 4
+  skills:
+  - name: Burst
+    level: 1
+  - name: Bleeding Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Ebony Odogaron's Power Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Burst Boost I
+      pieces_required: 2
+    - skill: Burst Boost II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/411
+- name: G. Ebony Greaves
+  piece_type: legs
+  set: Guardian Ebony
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: -2
+    water: -3
+    thunder: -2
+    ice: -2
+    dragon: 4
+  skills:
+  - name: Bleeding Resistance
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Ebony Odogaron's Power Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Burst Boost I
+      pieces_required: 2
+    - skill: Burst Boost II
+      pieces_required: 4
+  - name: Guardian's Pulse Group Skill
+    type: group_skill
+    effects:
+    - skill: Wylk Burst
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/412
+- name: Conga Helm
+  piece_type: head
+  set: Conga
+  rank: low
+  rarity: 2
+  defense:
+    base: 8
+    max: 28
+  resistances:
+    fire: -3
+    water: 1
+    thunder: 1
+    ice: -1
+    dragon: 2
+  skills:
+  - name: Mushroomancer
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/423
+- name: Conga Mail
+  piece_type: chest
+  set: Conga
+  rank: low
+  rarity: 2
+  defense:
+    base: 8
+    max: 28
+  resistances:
+    fire: -3
+    water: 1
+    thunder: 1
+    ice: -1
+    dragon: 2
+  skills:
+  - name: Mushroomancer
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/424
+- name: Conga Vambraces
+  piece_type: arms
+  set: Conga
+  rank: low
+  rarity: 2
+  defense:
+    base: 8
+    max: 28
+  resistances:
+    fire: -3
+    water: 1
+    thunder: 1
+    ice: -1
+    dragon: 2
+  skills:
+  - name: Stench Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/425
+- name: Conga Coil
+  piece_type: waist
+  set: Conga
+  rank: low
+  rarity: 2
+  defense:
+    base: 8
+    max: 28
+  resistances:
+    fire: -3
+    water: 1
+    thunder: 1
+    ice: -1
+    dragon: 2
+  skills:
+  - name: Stench Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/426
+- name: Conga Greaves
+  piece_type: legs
+  set: Conga
+  rank: low
+  rarity: 2
+  defense:
+    base: 8
+    max: 28
+  resistances:
+    fire: -3
+    water: 1
+    thunder: 1
+    ice: -1
+    dragon: 2
+  skills:
+  - name: Mushroomancer
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/427
+- name: Nerscylla Helm
+  piece_type: head
+  set: Nerscylla
+  rank: low
+  rarity: 3
+  defense:
+    base: 20
+    max: 36
+  resistances:
+    fire: -2
+    water: 2
+    thunder: -2
+    ice: 1
+    dragon: 2
+  skills:
+  - name: Ambush
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/428
+- name: Nerscylla Mail
+  piece_type: chest
+  set: Nerscylla
+  rank: low
+  rarity: 3
+  defense:
+    base: 20
+    max: 36
+  resistances:
+    fire: -2
+    water: 2
+    thunder: -2
+    ice: 1
+    dragon: 2
+  skills:
+  - name: Poison Resistance
+    level: 1
+  - name: Bind Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/429
+- name: Nerscylla Vambraces
+  piece_type: arms
+  set: Nerscylla
+  rank: low
+  rarity: 3
+  defense:
+    base: 20
+    max: 36
+  resistances:
+    fire: -2
+    water: 2
+    thunder: -2
+    ice: 1
+    dragon: 2
+  skills:
+  - name: Ambush
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/430
+- name: Nerscylla Coil
+  piece_type: waist
+  set: Nerscylla
+  rank: low
+  rarity: 3
+  defense:
+    base: 20
+    max: 36
+  resistances:
+    fire: -2
+    water: 2
+    thunder: -2
+    ice: 1
+    dragon: 2
+  skills:
+  - name: Sleep Resistance
+    level: 1
+  - name: Bind Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/431
+- name: Nerscylla Greaves
+  piece_type: legs
+  set: Nerscylla
+  rank: low
+  rarity: 3
+  defense:
+    base: 20
+    max: 36
+  resistances:
+    fire: -2
+    water: 2
+    thunder: -2
+    ice: 1
+    dragon: 2
+  skills:
+  - name: Ambush
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Neopteron Alert Group Skill
+    type: group_skill
+    effects:
+    - skill: Honey Hunter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/432
+- name: Udra Mirehelm
+  piece_type: head
+  set: Nu Udra
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 5
+    water: -4
+    thunder: 0
+    ice: 1
+    dragon: 0
+  skills:
+  - name: Resentment
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Nu Udra's Mutiny Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Bad Blood I
+      pieces_required: 2
+    - skill: Bad Blood II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/469
+- name: Udra Miremail
+  piece_type: chest
+  set: Nu Udra
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 5
+    water: -4
+    thunder: 0
+    ice: 1
+    dragon: 0
+  skills:
+  - name: Speed Eating
+    level: 1
+  - name: Resentment
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Nu Udra's Mutiny Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Bad Blood I
+      pieces_required: 2
+    - skill: Bad Blood II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/470
+- name: Udra Mirebraces
+  piece_type: arms
+  set: Nu Udra
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 5
+    water: -4
+    thunder: 0
+    ice: 1
+    dragon: 0
+  skills:
+  - name: Speed Eating
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Nu Udra's Mutiny Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Bad Blood I
+      pieces_required: 2
+    - skill: Bad Blood II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/471
+- name: Udra Mirecoil
+  piece_type: waist
+  set: Nu Udra
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 5
+    water: -4
+    thunder: 0
+    ice: 1
+    dragon: 0
+  skills:
+  - name: Resentment
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Nu Udra's Mutiny Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Bad Blood I
+      pieces_required: 2
+    - skill: Bad Blood II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/472
+- name: Udra Miregreaves
+  piece_type: legs
+  set: Nu Udra
+  rank: low
+  rarity: 4
+  defense:
+    base: 26
+    max: 40
+  resistances:
+    fire: 5
+    water: -4
+    thunder: 0
+    ice: 1
+    dragon: 0
+  skills:
+  - name: Speed Eating
+    level: 1
+  slots:
+  - 1
+  slots_source: base
+  set_bonuses:
+  - name: Nu Udra's Mutiny Set Bonus
+    type: set_bonus
+    effects:
+    - skill: Bad Blood I
+      pieces_required: 2
+    - skill: Bad Blood II
+      pieces_required: 4
+  - name: Lord's Favor Group Skill
+    type: group_skill
+    effects:
+    - skill: Inspiration
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/473
+- name: Chatacabra Helm
+  piece_type: head
+  set: Chatacabra
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: 1
+    water: 2
+    thunder: -3
+    ice: -1
+    dragon: 1
+  skills:
+  - name: Speed Eating
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/490
+- name: Chatacabra Mail
+  piece_type: chest
+  set: Chatacabra
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: 1
+    water: 2
+    thunder: -3
+    ice: -1
+    dragon: 1
+  skills:
+  - name: Speed Eating
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/491
+- name: Chatacabra Vambraces
+  piece_type: arms
+  set: Chatacabra
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: 1
+    water: 2
+    thunder: -3
+    ice: -1
+    dragon: 1
+  skills:
+  - name: Item Prolonger
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/492
+- name: Chatacabra Coil
+  piece_type: waist
+  set: Chatacabra
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: 1
+    water: 2
+    thunder: -3
+    ice: -1
+    dragon: 1
+  skills:
+  - name: Speed Eating
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/493
+- name: Chatacabra Greaves
+  piece_type: legs
+  set: Chatacabra
+  rank: low
+  rarity: 1
+  defense:
+    base: 6
+    max: 26
+  resistances:
+    fire: 1
+    water: 2
+    thunder: -3
+    ice: -1
+    dragon: 1
+  skills:
+  - name: Item Prolonger
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/494
+- name: Ajarakan Helm
+  piece_type: head
+  set: Ajarakan
+  rank: low
+  rarity: 3
+  defense:
+    base: 24
+    max: 40
+  resistances:
+    fire: 3
+    water: -3
+    thunder: 1
+    ice: -2
+    dragon: 0
+  skills:
+  - name: Bombardier
+    level: 1
+  - name: Partbreaker
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/495
+- name: Ajarakan Mail
+  piece_type: chest
+  set: Ajarakan
+  rank: low
+  rarity: 3
+  defense:
+    base: 24
+    max: 40
+  resistances:
+    fire: 3
+    water: -3
+    thunder: 1
+    ice: -2
+    dragon: 0
+  skills:
+  - name: Partbreaker
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/496
+- name: Ajarakan Vambraces
+  piece_type: arms
+  set: Ajarakan
+  rank: low
+  rarity: 3
+  defense:
+    base: 24
+    max: 40
+  resistances:
+    fire: 3
+    water: -3
+    thunder: 1
+    ice: -2
+    dragon: 0
+  skills:
+  - name: Bombardier
+    level: 1
+  - name: Cliffhanger
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/497
+- name: Ajarakan Coil
+  piece_type: waist
+  set: Ajarakan
+  rank: low
+  rarity: 3
+  defense:
+    base: 24
+    max: 40
+  resistances:
+    fire: 3
+    water: -3
+    thunder: 1
+    ice: -2
+    dragon: 0
+  skills:
+  - name: Bombardier
+    level: 1
+  - name: Blast Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/498
+- name: Ajarakan Greaves
+  piece_type: legs
+  set: Ajarakan
+  rank: low
+  rarity: 3
+  defense:
+    base: 24
+    max: 40
+  resistances:
+    fire: 3
+    water: -3
+    thunder: 1
+    ice: -2
+    dragon: 0
+  skills:
+  - name: Blast Resistance
+    level: 1
+  - name: Partbreaker
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Fortifying Pelt Group Skill
+    type: group_skill
+    effects:
+    - skill: Fortify
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/499
+- name: Balahara Helm
+  piece_type: head
+  set: Balahara
+  rank: low
+  rarity: 2
+  defense:
+    base: 12
+    max: 32
+  resistances:
+    fire: -1
+    water: 2
+    thunder: -3
+    ice: 1
+    dragon: 1
+  skills:
+  - name: Hunger Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/526
+- name: Balahara Mail
+  piece_type: chest
+  set: Balahara
+  rank: low
+  rarity: 2
+  defense:
+    base: 12
+    max: 32
+  resistances:
+    fire: -1
+    water: 2
+    thunder: -3
+    ice: 1
+    dragon: 1
+  skills:
+  - name: Quick Sheathe
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/527
+- name: Balahara Vambraces
+  piece_type: arms
+  set: Balahara
+  rank: low
+  rarity: 2
+  defense:
+    base: 12
+    max: 32
+  resistances:
+    fire: -1
+    water: 2
+    thunder: -3
+    ice: 1
+    dragon: 1
+  skills:
+  - name: Evade Extender
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/528
+- name: Balahara Coil
+  piece_type: waist
+  set: Balahara
+  rank: low
+  rarity: 2
+  defense:
+    base: 12
+    max: 32
+  resistances:
+    fire: -1
+    water: 2
+    thunder: -3
+    ice: 1
+    dragon: 1
+  skills:
+  - name: Evade Extender
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/529
+- name: Balahara Greaves
+  piece_type: legs
+  set: Balahara
+  rank: low
+  rarity: 2
+  defense:
+    base: 12
+    max: 32
+  resistances:
+    fire: -1
+    water: 2
+    thunder: -3
+    ice: 1
+    dragon: 1
+  skills:
+  - name: Evade Extender
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Scaling Prowess Group Skill
+    type: group_skill
+    effects:
+    - skill: Master Mounter
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/530
+- name: Piragill Greaves
+  piece_type: legs
+  set: Piragill
+  rank: low
+  rarity: 1
+  defense:
+    base: 4
+    max: 24
+  resistances:
+    fire: -3
+    water: 4
+    thunder: -3
+    ice: 1
+    dragon: 1
+  skills:
+  - name: Water Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/537
+- name: Rompopolo Helm
+  piece_type: head
+  set: Rompopolo
+  rank: low
+  rarity: 3
+  defense:
+    base: 18
+    max: 34
+  resistances:
+    fire: 0
+    water: -3
+    thunder: 0
+    ice: 0
+    dragon: 1
+  skills:
+  - name: Wide-Range
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/576
+- name: Rompopolo Mail
+  piece_type: chest
+  set: Rompopolo
+  rank: low
+  rarity: 3
+  defense:
+    base: 18
+    max: 34
+  resistances:
+    fire: 0
+    water: -3
+    thunder: 0
+    ice: 0
+    dragon: 1
+  skills:
+  - name: Wide-Range
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/577
+- name: Rompopolo Vambraces
+  piece_type: arms
+  set: Rompopolo
+  rank: low
+  rarity: 3
+  defense:
+    base: 18
+    max: 34
+  resistances:
+    fire: 0
+    water: -3
+    thunder: 0
+    ice: 0
+    dragon: 1
+  skills:
+  - name: Wide-Range
+    level: 1
+  - name: Poison Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/578
+- name: Rompopolo Coil
+  piece_type: waist
+  set: Rompopolo
+  rank: low
+  rarity: 3
+  defense:
+    base: 18
+    max: 34
+  resistances:
+    fire: 0
+    water: -3
+    thunder: 0
+    ice: 0
+    dragon: 1
+  skills:
+  - name: Wide-Range
+    level: 1
+  - name: Poison Resistance
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/579
+- name: Rompopolo Greaves
+  piece_type: legs
+  set: Rompopolo
+  rank: low
+  rarity: 3
+  defense:
+    base: 18
+    max: 34
+  resistances:
+    fire: 0
+    water: -3
+    thunder: 0
+    ice: 0
+    dragon: 1
+  skills:
+  - name: Wide-Range
+    level: 1
+  slots: []
+  slots_source: base
+  set_bonuses:
+  - name: Flexible Leathercraft Group Skill
+    type: group_skill
+    effects:
+    - skill: Hunter Gatherer
+      pieces_required: 3
+  source_url: https://wilds.mhdb.io/en/armor/580

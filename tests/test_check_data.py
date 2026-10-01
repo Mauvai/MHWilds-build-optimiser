@@ -47,7 +47,9 @@ def heads():
 
 
 def local_heads():
-    return [p for p in game().armor if p.piece_type == "head"]
+    # High Rank only, as check_data.main passes them: Low Rank is the API's
+    # own data and is not compared.
+    return [p for p in game().armor if p.piece_type == "head" and p.rank == "high"]
 
 
 class JewelNames(unittest.TestCase):
@@ -62,8 +64,8 @@ class Armour(unittest.TestCase):
         # 137 heads on each side and one disagreement, which is a real one:
         # the local file has Sealed Dragon Cloth α as a chest piece where the
         # API lists it as a head, and Pinion Necklace α as a head the API's
-        # head list does not have. Every base-slot piece agrees on its slots;
-        # transcended ones are not compared.
+        # head list does not have. Every piece agrees on its slots: base-slot
+        # pieces on their own, transcended ones on their untranscended slots.
         section = compare_armor(local_heads(), heads())
         self.assertEqual(section.only_api, ["Sealed Dragon Cloth α"])
         self.assertEqual(section.only_local, ["Pinion Necklace α"])
@@ -77,8 +79,13 @@ class Armour(unittest.TestCase):
         record = dict(CLERK_VISOR, kind="chest")
         record["skills"] = CLERK_VISOR["skills"][:1]
         changed = compare_armor(local_heads(), [record]).changed
-        self.assertEqual(len(changed), 2)  # slot type and skills; slots are transcended here
+        self.assertEqual(len(changed), 2)  # slot type and skills; untranscended slots agree
         self.assertIn("slot head here, chest in the API", changed[0])
+
+    def test_untranscended_slots_are_compared(self):
+        record = dict(CLERK_VISOR, slots=[2, 2])
+        (change,) = compare_armor(local_heads(), [record]).changed
+        self.assertIn("slots [2, 1] here, [2, 2] in the API", change)
 
     def test_base_slots_are_compared(self):
         record = {"name": "Lagiacrus Helm β", "kind": "head", "slots": [3, 2]}
