@@ -219,6 +219,7 @@ class Gui(Tmp):
             _pinned_pieces=lambda: dict(FULL.pins),
             _weapon_slots=lambda: (3, 2),
             _current_filters=lambda: FULL.filters,
+            _current_targets=lambda: FULL.targets,
             game_data=game(),
             file_label_var=Value(),
             status_var=Value(),

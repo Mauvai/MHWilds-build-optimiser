@@ -481,6 +481,7 @@ def render_console(
     reasons: list[str] | None = None,
     excluded: list[str] | None = None,
     filters: list[str] | None = None,
+    targets: list[str] | None = None,
 ) -> str:
     header = ["=" * WIDTH, f"MH Wilds gear sets for {db_path}"]
     # In strict mode the tier is always 0 by construction, so naming it would
@@ -506,6 +507,8 @@ def render_console(
         header.append("Excluded: " + ", ".join(excluded))
     if filters:
         header.append("Filters: " + "; ".join(filters))
+    if targets:
+        header.append("Targets: " + "; ".join(targets))
     if strict and mandatory:
         header.append("Mandatory skills are required: sets missing one are not shown.")
     elif constraint_level > 0 and mandatory:

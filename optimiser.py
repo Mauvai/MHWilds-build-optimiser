@@ -71,6 +71,7 @@ TALISMAN_ARMOUR_SLOT_SIZE = 1
 BONUS_PROGRESS_CREDIT = 0.8
 
 PIECE_TYPES = ("head", "chest", "arms", "waist", "legs")
+ELEMENTS = ("fire", "water", "thunder", "ice", "dragon")
 # The pins key for a fixed talisman. It rides in the same dict as the armour
 # pins so profiles, the CLI and the GUI carry it without a parallel setting.
 TALISMAN_SLOT = "talisman"
@@ -107,6 +108,67 @@ DEFAULT_TIERS = (
     DiversityTier("distinct builds", 3, min_piece_diff=2),
     DiversityTier("distinct bonuses", 4, min_piece_diff=1, require_new_bonuses=True),
 )
+
+
+@dataclass
+class BuildTargets:
+    """Minimum totals a set's five armour pieces must reach.
+
+    Defence is the pieces' maximum defence summed, the "Total defence" the
+    results show; a resistance is the pieces' resistance to that element
+    summed. Talismans and jewels add neither in this model: resistance
+    skills stay skills, which is also what the reserved slots are for.
+    An element absent from resistances has no target, so 0 can be one.
+    """
+
+    defense: int = 0
+    resistances: dict[str, int] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        unknown = set(self.resistances) - set(ELEMENTS)
+        if unknown:
+            raise ValueError(f"Unknown element(s) in targets: {', '.join(sorted(unknown))}.")
+        if self.defense < 0:
+            raise ValueError("A defence target cannot be negative.")
+
+    def is_empty(self) -> bool:
+        return not self.defense and not self.resistances
+
+    def describe(self) -> list[str]:
+        lines = [f"total defence >= {self.defense}"] if self.defense else []
+        lines += [
+            f"{element} resistance >= {self.resistances[element]}"
+            for element in ELEMENTS
+            if element in self.resistances
+        ]
+        return lines
+
+    def to_dict(self) -> dict:
+        out: dict = {}
+        if self.defense:
+            out["defense"] = self.defense
+        if self.resistances:
+            out["resistances"] = {e: self.resistances[e] for e in ELEMENTS if e in self.resistances}
+        return out
+
+    @classmethod
+    def from_dict(cls, raw, where: str = "targets") -> "BuildTargets":
+        if raw is None:
+            return cls()
+        if not isinstance(raw, dict) or set(raw) - {"defense", "resistances"}:
+            raise ValueError(f"{where} may only hold defense and resistances.")
+        defense = raw.get("defense", 0)
+        resistances = raw.get("resistances") or {}
+        if isinstance(defense, bool) or not isinstance(defense, int) or not isinstance(
+            resistances, dict
+        ):
+            raise ValueError(f"{where}: defense is a whole number, resistances a mapping.")
+        for element, value in resistances.items():
+            if element not in ELEMENTS or isinstance(value, bool) or not isinstance(value, int):
+                raise ValueError(
+                    f"{where}.resistances maps elements ({', '.join(ELEMENTS)}) to whole numbers."
+                )
+        return cls(defense=defense, resistances=dict(resistances))
 
 
 # --- scoring ----------------------------------------------------------------
@@ -244,6 +306,8 @@ class PieceProfile:
     defense: int
     defense_value: float
     bonus_indices: tuple[int, ...]  # indexed by Context.relevant_bonuses
+    # Indexed by Context.target_elements; empty when no resistance target.
+    resistances: tuple[int, ...] = ()
 
 
 @dataclass
@@ -347,7 +411,12 @@ class Context:
         excluded_sets: list[str] | set[str] | None = None,
         excluded_pieces: list[str] | set[str] | None = None,
         weapon_slots: tuple[int, ...] = (),
+        targets: BuildTargets | None = None,
     ) -> None:
+        self.targets = targets or BuildTargets()
+        # Only the targeted elements are tracked through the search, in
+        # ELEMENTS order, so a run with no resistance target carries none.
+        self.target_elements = tuple(e for e in ELEMENTS if e in self.targets.resistances)
         # A pinned talisman narrows the pool to itself, and everything that
         # reads game.talismans - reachability, the proofs, the per-set
         # shortlist - then sees only that one without knowing about pins.
@@ -406,6 +475,20 @@ class Context:
                 )
             )
             for piece_type in PIECE_TYPES
+        }
+        # The most each slot can add toward each target, over the pieces it
+        # may still use. Exact maxima, so a partial set that cannot reach a
+        # target even with the best of these is provably out, and summed
+        # over every slot they prove a target unreachable before searching.
+        self.slot_best_defense = {
+            t: max((p.defense for p in self.candidates[t]), default=0) for t in PIECE_TYPES
+        }
+        self.slot_best_resistance = {
+            t: tuple(
+                max((p.resistances[i] for p in self.candidates[t]), default=0)
+                for i in range(len(self.target_elements))
+            )
+            for t in PIECE_TYPES
         }
 
     @staticmethod
@@ -489,6 +572,7 @@ class Context:
             defense=piece.defense.max,
             defense_value=defense_value(piece.defense.max),
             bonus_indices=tuple(sorted(bonuses)),
+            resistances=tuple(getattr(piece.resistances, e) for e in self.target_elements),
         )
 
 
@@ -515,6 +599,11 @@ def prune_dominated(
             elif a.skill_levels[i] > b.skill_levels[i]:
                 return False
         if any(x < y for x, y in zip(cumulative(a.slots), cumulative(b.slots))):
+            return False
+        # Only targeted elements are carried; without this a piece could be
+        # pruned for one that matches it everywhere but the resistance a
+        # target needs, and the target would read as unreachable.
+        if any(x < y for x, y in zip(a.resistances, b.resistances)):
             return False
         return a.defense >= b.defense
 
@@ -917,6 +1006,8 @@ class SearchState:
     defense_value_sum: float
     bonus_counts: tuple[int, ...]
     rank: float
+    defense_sum: int = 0
+    resistance_sums: tuple[int, ...] = ()  # indexed by Context.target_elements
 
 
 class Optimiser:
@@ -932,6 +1023,7 @@ class Optimiser:
         excluded_sets: list[str] | set[str] | None = None,
         excluded_pieces: list[str] | set[str] | None = None,
         weapon_slots: tuple[int, ...] | list[int] | None = None,
+        targets: BuildTargets | None = None,
     ) -> None:
         self.game = game
         self.scoring = scoring
@@ -952,6 +1044,7 @@ class Optimiser:
             excluded_sets=excluded_sets,
             excluded_pieces=excluded_pieces,
             weapon_slots=weapon_slots,
+            targets=targets,
         )
         self.game = self.context.game  # narrowed to a pinned talisman, if any
         self.beam_width = beam_width
@@ -1039,6 +1132,7 @@ class Optimiser:
         for piece_type in free_types:
             if not any(a.piece_type == piece_type for a in context.available_armor):
                 reasons.append(f"Every {piece_type} piece is excluded.")
+        reasons.extend(self._unreachable_targets())
 
         needed_by_type: dict[str, list[int]] = {}
         needs: dict[str, int] = {}  # required bonus -> pieces still to find
@@ -1155,6 +1249,34 @@ class Optimiser:
                 )
         return reasons
 
+    def _unreachable_targets(self) -> list[str]:
+        """Targets no armour the search may use can reach, one line each.
+
+        A proof: the best piece per slot for one target, summed, is the most
+        any set can have, so anything above it is out of reach whatever
+        else is chosen. Targets are checked one at a time, so two that are
+        each reachable but never together are not caught here.
+        """
+        context = self.context
+        targets = context.targets
+        reasons = []
+        if targets.defense:
+            best = sum(context.slot_best_defense.values())
+            if best < targets.defense:
+                reasons.append(
+                    f"The total defence target {targets.defense} is out of reach: the "
+                    f"best armour allowed in each slot adds up to {best}."
+                )
+        for index, element in enumerate(context.target_elements):
+            best = sum(r[index] for r in context.slot_best_resistance.values())
+            target = targets.resistances[element]
+            if best < target:
+                reasons.append(
+                    f"The {element} resistance target {target} is out of reach: the "
+                    f"best armour allowed in each slot adds up to {best:+d}."
+                )
+        return reasons
+
     def _bonus_combination_exists(
         self, needs: dict[str, int], free_types: list[str]
     ) -> bool:
@@ -1205,6 +1327,12 @@ class Optimiser:
         the beam is a heuristic, so a miss here is not a proof.
         """
         if not self._evaluated:
+            if not self.context.targets.is_empty():
+                return [
+                    "No armour combination the search kept reaches the targets ("
+                    + "; ".join(self.context.targets.describe())
+                    + ") along with everything else asked for."
+                ]
             return ["The search did not build any complete gear set."]
 
         reasons: list[str] = []
@@ -1350,6 +1478,23 @@ class Optimiser:
 
     def _search_armour(self) -> list[SearchState]:
         order = sorted(PIECE_TYPES, key=lambda t: len(self.context.candidates[t]))
+        context = self.context
+        targets = context.targets
+        n_elements = len(context.target_elements)
+        # The most the slots still to come can add, per stage: what a partial
+        # set needs on top of its own totals to stay able to reach a target.
+        def_after = [
+            sum(context.slot_best_defense[t] for t in order[stage:])
+            for stage in range(1, len(order) + 1)
+        ]
+        res_after = [
+            tuple(
+                sum(context.slot_best_resistance[t][i] for t in order[stage:])
+                for i in range(n_elements)
+            )
+            for stage in range(1, len(order) + 1)
+        ]
+        res_targets = tuple(targets.resistances[e] for e in context.target_elements)
         empty_levels = (0,) * len(self.context.relevant_skills)
         empty_bonuses = (0,) * len(self.context.relevant_bonuses)
         beam = [
@@ -1360,11 +1505,14 @@ class Optimiser:
                 defense_value_sum=0.0,
                 bonus_counts=empty_bonuses,
                 rank=0.0,
+                resistance_sums=(0,) * n_elements,
             )
         ]
 
         for stage, piece_type in enumerate(order, start=1):
             candidates = self.context.candidates[piece_type]
+            reach_def = def_after[stage - 1]
+            reach_res = res_after[stage - 1]
             expanded: list[SearchState] = []
             for position, state in enumerate(beam):
                 if position % CHECK_EVERY == 0:
@@ -1374,6 +1522,21 @@ class Optimiser:
                         f"Searching armour: slot {stage} of {len(order)} ({piece_type})",
                     )
                 for profile in candidates:
+                    # Dropped here, before ranking, when even the best of
+                    # the slots still to fill cannot lift it to a target:
+                    # it could never become a valid set, and keeping it
+                    # would only crowd valid ones out of the beam.
+                    defense_sum = state.defense_sum + profile.defense
+                    if targets.defense and defense_sum + reach_def < targets.defense:
+                        continue
+                    resistance_sums = tuple(
+                        a + b for a, b in zip(state.resistance_sums, profile.resistances)
+                    )
+                    if any(
+                        have + more < need
+                        for have, more, need in zip(resistance_sums, reach_res, res_targets)
+                    ):
+                        continue
                     levels = tuple(
                         a + b for a, b in zip(state.levels, profile.skill_levels)
                     )
@@ -1393,6 +1556,8 @@ class Optimiser:
                         + profile.defense_value,
                         bonus_counts=tuple(counts),
                         rank=0.0,
+                        defense_sum=defense_sum,
+                        resistance_sums=resistance_sums,
                     )
                     new_state.rank = self._rank_state(new_state, stage)
                     expanded.append(new_state)
@@ -1793,6 +1958,7 @@ def optimise(
     weapon_slots: tuple[int, ...] | list[int] | None = None,
     progress=None,
     should_stop=None,
+    targets: BuildTargets | None = None,
 ) -> tuple[list[GearSet], int, Optimiser]:
     optimiser = Optimiser(
         game,
@@ -1805,6 +1971,7 @@ def optimise(
         excluded_sets=excluded_sets,
         excluded_pieces=excluded_pieces,
         weapon_slots=weapon_slots,
+        targets=targets,
     )
     sets, constraint_level = optimiser.run(
         tiers, strict=strict, progress=progress, should_stop=should_stop
@@ -1911,6 +2078,26 @@ def _cli_filters(args, base):
         min_defense=args.min_defense if args.min_defense is not None else base.min_defense,
         exclude_slotless=base.exclude_slotless or args.exclude_slotless,
     )
+
+
+def _cli_targets(args, base: BuildTargets) -> BuildTargets:
+    """The profile's targets, with each one given on the command line
+    replacing the profile's value for that total."""
+    defense = base.defense
+    if args.target_defense is not None:
+        if args.target_defense < 0:
+            raise ValueError("--target-defense cannot be negative")
+        defense = args.target_defense
+    resistances = dict(base.resistances)
+    for text in args.target_resistance:
+        match = re.match(r"^\s*([a-z]+)\s*[=:]\s*(-?\d+)\s*$", text.lower())
+        if not match or match.group(1) not in ELEMENTS:
+            raise ValueError(
+                f"--target-resistance: {text!r} is not like 'fire=0'; elements are "
+                + ", ".join(ELEMENTS)
+            )
+        resistances[match.group(1)] = int(match.group(2))
+    return BuildTargets(defense=defense, resistances=resistances)
 
 
 def main() -> None:
@@ -2052,6 +2239,25 @@ def main() -> None:
         help="leave out armour matching a resistance rule such as 'fire<0' or "
         "'dragon>=3'; operators < <= = >= > (repeatable)",
     )
+    targets = parser.add_argument_group(
+        "targets",
+        "Minimum totals over the five armour pieces; each overrides a profile's.",
+    )
+    targets.add_argument(
+        "--target-defense",
+        type=int,
+        default=None,
+        metavar="N",
+        help="only sets whose total maximum defence is at least N",
+    )
+    targets.add_argument(
+        "--target-resistance",
+        action="append",
+        default=[],
+        metavar="ELEMENT=N",
+        help="only sets whose armour resistance to ELEMENT totals at least N, "
+        "e.g. fire=0 or dragon=5 (repeatable)",
+    )
     parser.add_argument(
         "--save-profile",
         metavar="FILE",
@@ -2121,9 +2327,14 @@ def main() -> None:
         profile_filters = _cli_filters(args, profile.filters)
     except ValueError as exc:
         parser.error(str(exc))
+    try:
+        profile_targets = _cli_targets(args, profile.targets)
+    except ValueError as exc:
+        parser.error(str(exc))
     profile = updated(
         profile,
         filters=profile_filters,
+        targets=profile_targets,
         pins=pins,
         # Exclusions add to the profile's rather than replace them: a
         # command-line exclusion reads as "and also leave this out".
@@ -2219,6 +2430,7 @@ def main() -> None:
         excluded_sets=profile.exclude_sets,
         excluded_pieces=excluded_pieces,
         weapon_slots=tuple(profile.weapon_slots),
+        targets=profile.targets,
         progress=_terminal_progress() if sys.stderr.isatty() else None,
     )
     if sys.stderr.isatty():
@@ -2247,6 +2459,7 @@ def main() -> None:
             reasons=reasons,
             excluded=profile.exclude_sets + profile.exclude_pieces,
             filters=profile.filters.describe(),
+            targets=profile.targets.describe(),
         )
     )
 

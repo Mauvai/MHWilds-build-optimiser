@@ -46,6 +46,7 @@ from load_data import (
 )
 from optimiser import (
     MAX_WEAPON_SLOTS,
+    BuildTargets,
     PIECE_TYPES,
     RESERVED_SLOTS,
     TALISMAN_SLOT,
@@ -202,6 +203,12 @@ HINTS = {
         "Exclude armour whose resistance to an element compares this way, "
         "e.g. fire < 0 drops every set weak to fire."
     ),
+    "targets": (
+        "Minimum totals over the five armour pieces. Defence is the total "
+        "maximum defence the results show; a resistance is the armour's "
+        "own, before any resistance skill or jewel. Sets short of a ticked "
+        "target are never shown."
+    ),
     "transcendence": (
         "On: rarity 5 and 6 armour counts with its transcended slots and "
         "defence. Off: as it is before transcending, for armour you have "
@@ -317,6 +324,7 @@ class RunRequest:
     strict: bool = True
     weapon_slots: tuple[int, ...] = ()
     filters: GearFilters = field(default_factory=GearFilters)
+    targets: BuildTargets = field(default_factory=BuildTargets)
     # What the weights came from, for export headers: the loaded file's path,
     # marked when the run used edits not yet saved to it.
     source_label: str = ""
@@ -969,7 +977,71 @@ class SkillsGui:
             self.resistance_op_vars[element] = op_var
             self.resistance_value_vars[element] = value_var
 
+        self._build_targets_section(right)
         self._refresh_filter_summary()
+
+    def _build_targets_section(self, parent: tk.Widget) -> None:
+        """A tick and a number per total: unticked means no target."""
+        box = ttk.LabelFrame(parent, text="Targets", padding=SECTION_PAD)
+        box.pack(side=tk.TOP, fill=tk.X, pady=(6, 0))
+        _hint(box, "targets", wrap=320).pack(side=tk.TOP, anchor=tk.W)
+        grid = ttk.Frame(box)
+        grid.pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
+        self.target_on_vars: dict[str, tk.BooleanVar] = {}
+        self.target_value_vars: dict[str, tk.StringVar] = {}
+        rows = [("defense", "Total defence at least", "400", 0, 1000)] + [
+            (e, f"{e.capitalize()} resistance at least", "0", -30, 30) for e in ELEMENTS
+        ]
+        for row, (key, label, default, low, high) in enumerate(rows):
+            on = tk.BooleanVar(value=False)
+            ttk.Checkbutton(grid, text=label, variable=on).grid(
+                row=row, column=0, sticky=tk.W, pady=1
+            )
+            value = tk.StringVar(value=default)
+            ttk.Spinbox(
+                grid, from_=low, to=high, textvariable=value, width=5, justify=tk.CENTER
+            ).grid(row=row, column=1, sticky=tk.W, padx=(8, 0))
+            self.target_on_vars[key] = on
+            self.target_value_vars[key] = value
+
+    def _current_targets(self) -> BuildTargets:
+        """The ticked targets; an unparseable number is skipped here and
+        named by _target_input_problems before any run."""
+        def value(key: str) -> int | None:
+            if not self.target_on_vars[key].get():
+                return None
+            try:
+                return int(self.target_value_vars[key].get())
+            except ValueError:
+                return None
+
+        defense = value("defense")
+        resistances = {e: v for e in ELEMENTS if (v := value(e)) is not None}
+        return BuildTargets(defense=max(0, defense or 0), resistances=resistances)
+
+    def _target_input_problems(self) -> list[str]:
+        problems = []
+        for key, on in self.target_on_vars.items():
+            if not on.get():
+                continue
+            try:
+                number = int(self.target_value_vars[key].get())
+            except ValueError:
+                number = None
+            name = "defence" if key == "defense" else f"{key} resistance"
+            if number is None or (key == "defense" and number < 0):
+                problems.append(f"The {name} target must be a whole number.")
+        return problems
+
+    def _set_targets(self, targets: BuildTargets) -> None:
+        self.target_on_vars["defense"].set(bool(targets.defense))
+        if targets.defense:
+            self.target_value_vars["defense"].set(str(targets.defense))
+        for element in ELEMENTS:
+            on = element in targets.resistances
+            self.target_on_vars[element].set(on)
+            if on:
+                self.target_value_vars[element].set(str(targets.resistances[element]))
 
     def _filter_grid(self, parent: tk.Widget) -> ttk.Frame:
         """A grid with Include / Exclude column headings above the boxes."""
@@ -1073,6 +1145,7 @@ class SkillsGui:
 
     def _reset_filters(self) -> None:
         self._set_filters(GearFilters())
+        self._set_targets(BuildTargets())
 
     def _refresh_filter_summary(self) -> None:
         """Count what the filters leave out, so a filter's reach is visible
@@ -2185,6 +2258,7 @@ class SkillsGui:
             relax=bool(self.relax_var.get()),
             custom_talismans=stored_path(self.custom_talismans_source),
             filters=self._current_filters(),
+            targets=self._current_targets(),
         )
 
     def _save_profile(self) -> None:
@@ -2280,6 +2354,7 @@ class SkillsGui:
         self.reserved_slots_var.set(str(profile.reserve))
         self.relax_var.set(profile.relax)
         self._set_filters(profile.filters)
+        self._set_targets(profile.targets)
         if talismans_path is None:
             self._clear_loaded_custom_talismans()
         else:
@@ -2602,7 +2677,7 @@ class SkillsGui:
                 )
                 return
 
-        problems = self._filter_input_problems()
+        problems = self._filter_input_problems() + self._target_input_problems()
         filters = self._current_filters()
         problems += pin_conflicts(
             self.game_data, apply_filters(self.game_data, filters), pinned_pieces
@@ -2625,6 +2700,7 @@ class SkillsGui:
             strict=not self.relax_var.get(),
             weapon_slots=self._weapon_slots(),
             filters=filters,
+            targets=self._current_targets(),
             source_label=str(self.current_path)
             + (" (with unsaved edits)" if self._has_unsaved_changes() else ""),
         )
@@ -2689,6 +2765,7 @@ class SkillsGui:
                 weapon_slots=request.weapon_slots,
                 progress=progress,
                 should_stop=cancel.is_set if cancel is not None else None,
+                targets=request.targets,
             )
             # Why nothing came back, gathered on this thread while the optimiser
             # is still in scope: impossible_requirements is a proof, so it wins
@@ -2760,12 +2837,19 @@ class SkillsGui:
             # empty result is a normal outcome, not a malfunction, and without
             # this the user is told only that nothing worked.
             detail = "\n".join(f"\u2022 {line}" for line in reasons or [])
+            # Relaxing only loosens required skills; when filters or targets
+            # are set they may be what emptied the result, so say so too.
+            hints = ["Tick 'Allow sets missing a required skill' to search "
+                     "without the requirement."]
+            request = result.request
+            if not request.filters.is_default() or not request.targets.is_empty():
+                hints.append("Filters and targets on the Filters tab also narrow "
+                             "the search; loosening them may help.")
             messagebox.showinfo(
                 "Optimiser",
                 "No gear set meets these requirements."
                 + (f"\n\n{detail}" if detail else "")
-                + "\n\nTick 'Allow sets missing a required skill' to search "
-                "without the requirement.",
+                + "\n\n" + " ".join(hints),
             )
             return
 
@@ -2934,6 +3018,7 @@ class SkillsGui:
             strict=request.strict,
             excluded=request.excluded_sets + request.excluded_pieces,
             filters=request.filters.describe(),
+            targets=request.targets.describe(),
         )
 
     def _write_results(self, path: Path) -> None:

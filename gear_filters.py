@@ -22,14 +22,13 @@ import re
 from dataclasses import dataclass, field, replace
 
 from load_data import ArmorPiece, Defense, GameData, Talisman
-from optimiser import TALISMAN_SLOT
+from optimiser import ELEMENTS, TALISMAN_SLOT
 
 VARIANTS = ("α", "β", "γ")
 VARIANT_NAMES = {"α": "Alpha", "β": "Beta", "γ": "Gamma"}
 RANKS = ("high", "low")
 RARITIES = tuple(range(1, 9))
 TALISMAN_TIERS = (1, 2, 3, 4, 5)
-ELEMENTS = ("fire", "water", "thunder", "ice", "dragon")
 
 # Stored as plain ASCII so profiles stay easy to hand-edit; the GUI shows
 # the typographic forms.

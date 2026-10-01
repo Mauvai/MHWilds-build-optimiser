@@ -23,7 +23,7 @@ One deliberate choice: it does not return ten near-identical builds. Results are
    - tick a **Gogma weapon** set bonus or group skill if your weapon contributes a piece toward one of them, see [How it works](#how-it-works) for what that credit buys;
    - set your weapon's **Weapon Slots** so weapon skills get weapon jewels, see [Weapon slots](#weapon-slots);
    - rule armour out with **Exclude Gear…**, see [Excluding armour](#excluding-armour);
-   - leave whole categories out on the **Filters** tab, γ sets, Low Rank, a talisman tier, armour weak to an element, or turn transcending off, see [Filters tab](#filters-tab);
+   - leave whole categories out on the **Filters** tab, γ sets, Low Rank, a talisman tier, armour weak to an element, or turn transcending off, see [Filters tab](#filters-tab), and set minimum total defence and resistances in its **Targets** box, see [Build targets](#build-targets);
    - load custom talismans built on the other tab, so they join the optimiser's charm pool without touching `craftable_talismans.yaml`;
    - adjust *Reserved slots* (default 2) for the resistance jewels you plan to slot yourself per hunt. The set's smallest slots are held back, so they're size 1 unless the set runs out of those first.
 
@@ -46,9 +46,15 @@ Low Rank sets carry no α/β/γ letter, so the variant rows never touch them. Th
 
 A filtered piece reaches the search as an exclusion, so everything that already handled exclusions handles filters: the pre-search proofs say a requirement is only met by excluded armour, and a pin on a filtered piece is refused, as a pinned-and-excluded piece is, rather than one instruction quietly winning. Results and exports list the active filters under the exclusions. The CLI takes the same filters as `--exclude-variant`, `--exclude-rank`, `--exclude-rarity`, `--exclude-talisman-tier`, `--no-transcendence`, `--min-defense`, `--exclude-slotless` and `--exclude-resistance 'fire<0'`, each adding to a profile's.
 
+### Build Targets
+
+The **Targets** box on the Filters tab sets minimum totals over the five armour pieces: total defence, the same "Total defence" the results show, and each element's resistance. Untick a row for no target; 0 is a real resistance target ("nothing weak to fire overall"), not a blank. Talismans and jewels add to neither here: resistance skills stay skills, applied in game on top of these numbers, which is also what the reserved slots are for. Targets are hard: a set short of one is never shown, ticked relax or not, because relaxing is about required skills.
+
+They're enforced inside the search rather than by filtering its output. Each slot's best defence and best resistance per targeted element over the pieces it may use is known up front, so a partial set that couldn't reach a target even with the best of everything still to come is dropped before it takes a place in the beam. That bound is exact, so it never drops a set that could make it, and summed over all five slots it proves an unreachable target before searching starts, reported the same way as an impossible requirement. Dominated-piece pruning also compares targeted resistances, or a piece could be pruned for one that matches it everywhere except the resistance the target needs. Targets are checked one at a time, so two that are each reachable but never together come back as "the search found nothing" rather than a proof. CLI: `--target-defense 420 --target-resistance fire=0`.
+
 ### Search Profiles
 
-**Load Profile…** and **Save Profile…** on the Skills File row keep a whole build goal in one file under `profiles/`: the weights plus every setting on the tab, pins, exclusions, weapon slots, Gogma choices, reserve, relax, the loaded custom talisman file and the Filters tab. Only the filters that differ from Include are written, so a profile saved before filters existed loads unchanged. The CLI reads the same file with `--profile`, and `--save-profile` writes one from any run, including a plain `--skills-db` run, so an existing weighted file converts in a single command.
+**Load Profile…** and **Save Profile…** on the Skills File row keep a whole build goal in one file under `profiles/`: the weights plus every setting on the tab, pins, exclusions, weapon slots, Gogma choices, reserve, relax, the loaded custom talisman file and the Filters tab with its targets. Only the filters that differ from Include are written, so a profile saved before filters existed loads unchanged. The CLI reads the same file with `--profile`, and `--save-profile` writes one from any run, including a plain `--skills-db` run, so an existing weighted file converts in a single command.
 
 A profile stores only the weights of the weighted skills, against `skills_default.yaml`, never a copy of the skill data. That's the difference from a weighted skills file, which duplicates every skill's description and levels: after a data update the weighted file still carries the old text and knows nothing of new skills, while a profile picks up the new data the next time it loads. Paths are stored relative to the repo, so a profile keeps working if you move the checkout.
 
@@ -85,6 +91,7 @@ python optimiser.py --skills-db skills_weighted.yaml --count 10
 | `--talismans` | none | A custom talisman file to add to the charm pool |
 | `--relax` | off | Return sets that miss a mandatory skill instead of returning fewer |
 | `--exclude-variant`, `--exclude-rank`, `--exclude-rarity`, `--exclude-talisman-tier`, `--exclude-resistance`, `--exclude-slotless`, `--min-defense`, `--no-transcendence` | none | The [Filters tab](#filters-tab) on the command line; repeatable where it makes sense, and added to a profile's filters |
+| `--target-defense`, `--target-resistance` | none | [Build targets](#build-targets): minimum total defence, and `ELEMENT=N` per element (repeatable); each replaces a profile's value |
 | `--save-profile` | none | Also save the weights and settings this run used as a profile |
 
 **Pass `--skills-db` or `--profile` every time.** The default points at a weighted file that isn't committed (everything under the output folders is gitignored), so a bare `python optimiser.py` stops with a usage error naming the missing file. Input `skills_weighted.yaml` writes results to `optimiser_outputs/weighted_gear_sets.yaml`. A `--count` or `--beam` below 1, or a negative `--reserve`, is rejected up front; each of these used to produce an empty result with no explanation.
