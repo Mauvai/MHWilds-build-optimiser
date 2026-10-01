@@ -59,7 +59,7 @@ from optimiser import (
     talisman_slot_sizes,
 )
 from optimiser_report import render_console, render_set_inline, set_view, write_yaml
-from results_view import draw_set
+from results_view import COLOURS as RESULT_COLOURS, FAMILY as RESULT_FAMILY, draw_set
 import update_check
 from search_profile import (
     PROFILES_DIR,
@@ -80,40 +80,102 @@ MAX_TALISMAN_SLOTS = 3
 
 HINT_WRAP = 300  # px; the widest column a hint has to sit in is the gear panel
 
-# Light keeps whatever ttk theme Tk starts with - vista on Windows, which draws
-# entries, comboboxes and scrollbars through the OS and ignores colour styling.
-# That is exactly why dark has to switch to clam: clam is drawn by Tk, so its
-# colours can be set. The two modes therefore look different by construction,
-# and that is the accepted trade for leaving the light appearance untouched.
-THEMES = {
-    "light": {
-        "ttk_theme": None,  # None means "whatever Tk started with"
-        "hint": "#555555",
-        "status": "#2a7f2a",
-        "update": "#b35900",
-        "window": None,  # None means "leave the widget's own default alone"
-        "text_bg": "white",
-        "text_fg": "black",
-        "select_bg": "#0078d7",
-        "select_fg": "white",
-    },
-    "dark": {
-        "ttk_theme": "clam",
-        "hint": "#a0a0a0",
-        "status": "#6fbf6f",
-        "update": "#f0a040",
-        "window": "#1f1f1f",
-        "surface": "#2b2b2b",  # entries, buttons, anything inset
-        "border": "#3c3c3c",
-        "text": "#e6e6e6",
-        "disabled": "#6b6b6b",
-        "hover": "#3a3a3a",
-        "text_bg": "#252526",
-        "text_fg": "#e6e6e6",
-        "select_bg": "#094771",
+# One palette for the whole application, built from the results window's
+# own colours so the main window and the results read as one design rather
+# than a native form with a styled report bolted on. Both modes use clam:
+# vista, Windows' default ttk theme, draws entries, comboboxes and
+# scrollbars through the OS and ignores colour styling, so only a theme Tk
+# draws itself can carry these colours at all.
+def make_palette(dark: bool) -> dict[str, str]:
+    c = RESULT_COLOURS["dark" if dark else "light"]
+    return {
+        "app": c["bg"],  # the window behind the cards
+        "surface": c["box"],  # card bodies, and so most widgets
+        "border": c["border"],
+        "title_bg": c["title_bg"],
+        "title_fg": c["title_fg"],
+        "header_bg": c["header_bg"],
+        "header_fg": c["header_fg"],
+        "header_dim": c["header_dim"],
+        "text": c["text"],
+        "hint": c["dim"],
+        "stripe": c["stripe"],
+        "accent": c["pip_armour"],
+        "accent_active": "#2459a8" if not dark else "#7ab0f5",
+        # White on the dark mode's lighter blue is under 3:1, so it takes
+        # near-black text instead.
+        "accent_fg": "#ffffff" if not dark else "#0b1a2e",
+        "status": c["max"],
+        "low": c["low"],
+        "field": "#ffffff" if not dark else "#252526",
+        "hover": "#e8edf5" if not dark else "#3a3a3a",
+        "pressed": "#d5deec" if not dark else "#444444",
+        "disabled": "#a3a8b0" if not dark else "#6b6b6b",
+        "select_bg": c["pip_armour"],
         "select_fg": "#ffffff",
-    },
-}
+        "update_bg": "#fff3dd" if not dark else "#3a3020",
+        "update_fg": "#7a4a00" if not dark else "#f0c070",
+        "update_border": "#f0c070" if not dark else "#6a5530",
+    }
+
+
+FAMILY = RESULT_FAMILY
+TITLE_FONT = (FAMILY, 15, "bold")
+CARD_TITLE_FONT = (FAMILY, 10, "bold")
+SKILL_NAME_FONT = (FAMILY, 13, "bold")
+
+
+class Card(ttk.Frame):
+    """A titled box in the results window's style: a tinted title strip
+    over a body, inside a one-pixel border.
+
+    The Card itself is the body, so widgets are created inside it exactly as
+    they were inside the LabelFrame it replaces; the border and title live
+    in an outer frame the body is packed into with in_=, and pack() and
+    grid() on the Card place that outer frame instead. The outer frame and
+    title are classic Tk, which no ttk style reaches, so recolour() repaints
+    them on a theme change.
+    """
+
+    def __init__(self, parent: tk.Widget, title: str, padding=None) -> None:
+        self.outer = tk.Frame(parent, highlightthickness=1, bd=0)
+        self.title_bar = tk.Frame(self.outer, bd=0)
+        self.title_bar.pack(side=tk.TOP, fill=tk.X)
+        self.title_label = tk.Label(
+            self.title_bar, text=title, font=CARD_TITLE_FONT, anchor=tk.W, padx=10, pady=4
+        )
+        self.title_label.pack(side=tk.LEFT)
+        # Right-hand caption, like "Total defence" on the results' Equipment
+        # box; empty unless a section has something to say there.
+        self.caption = tk.Label(self.title_bar, text="", font=(FAMILY, 9), padx=10)
+        self.caption.pack(side=tk.RIGHT)
+        super().__init__(parent, padding=padding or SECTION_PAD)
+        tk.Pack.pack_configure(self, in_=self.outer, side=tk.TOP, fill=tk.BOTH, expand=True)
+        # Body above outer in stacking order, or the outer frame, created
+        # first, would be drawn over it.
+        self.lift(self.outer)
+
+    def pack(self, **options) -> None:  # type: ignore[override]
+        self.outer.pack(**options)
+
+    pack_configure = pack
+
+    def grid(self, **options) -> None:  # type: ignore[override]
+        self.outer.grid(**options)
+
+    grid_configure = grid
+
+    def recolour(self, palette: dict) -> None:
+        self.outer.configure(
+            background=palette["surface"],
+            highlightbackground=palette["border"],
+            highlightcolor=palette["border"],
+        )
+        for widget in (self.title_bar, self.title_label, self.caption):
+            widget.configure(background=palette["title_bg"])
+        self.title_label.configure(foreground=palette["title_fg"])
+        self.caption.configure(foreground=palette["title_fg"])
+
 
 # Tuning the layout means tuning these, not hunting through the builders. The
 # skill list is the one thing that has no natural height of its own, so it names
@@ -176,9 +238,9 @@ HINTS = {
     "profile": (
         "Open reads a weighted skills file. A profile instead holds the "
         "weights and every setting on the Skill Weights tab - pins, "
-        "exclusions, weapon slots, Gogma, reserve and relax - plus the custom "
-        "talismans loaded for the optimiser, in one file, applied to the "
-        "current skill data."
+        "exclusions, weapon slots, Gogma, reserve and relax - plus the Filters "
+        "tab and the custom talismans loaded for the optimiser, in one file, "
+        "applied to the current skill data."
     ),
     "talismans": (
         "Talismans from a file, added to the optimiser's pool. Separate from "
@@ -402,10 +464,10 @@ class SkillsGui:
             value=bool(state.get("check_updates", True))
         )
         self.update_status: update_check.UpdateStatus | None = None
-        # Captured before any theme switch, so light mode can always get back to
-        # whatever Tk chose for this platform rather than to a name hard-coded
-        # here - "vista" does not exist on Linux.
-        self._native_ttk_theme = ttk.Style(root).theme_use()
+        # Every Card made, so a theme change can repaint the classic Tk parts
+        # of each; see Card.recolour.
+        self._cards: list[Card] = []
+        self._use_fonts()
 
         # Optimiser integration state.
         self._optimiser_running = False
@@ -507,35 +569,62 @@ class SkillsGui:
 
     # --- theming -----------------------------------------------------------
 
+    def _palette(self) -> dict[str, str]:
+        return make_palette(bool(self.dark_var.get()))
+
+    def _use_fonts(self) -> None:
+        """Segoe UI at 10, the results window's face and size, where it exists.
+
+        Tk's named fonts are what every widget without a font of its own
+        uses, so changing them restyles the whole window at once. On a
+        system without Segoe UI the family is left as Tk chose it.
+        """
+        available = set(tkfont.families(self.root))
+        for name in ("TkDefaultFont", "TkTextFont", "TkMenuFont", "TkHeadingFont"):
+            font = tkfont.nametofont(name)
+            if FAMILY in available:
+                font.configure(family=FAMILY)
+            font.configure(size=10)
+        tkfont.nametofont("TkHeadingFont").configure(weight="bold")
+
+    def _card(self, parent: tk.Widget, title: str, padding=None) -> Card:
+        card = Card(parent, title, padding)
+        self._cards.append(card)
+        if hasattr(self, "dark_var"):
+            card.recolour(self._palette())
+        return card
+
     def _apply_theme(self) -> None:
         """Repaint everything for the current mode.
 
         ttk styles are global and live, so switching is a restyle rather than a
-        rebuild - but only for ttk widgets. Listboxes and the results Text are
-        classic Tk, drawn from their own options, so they are recoloured by hand
-        below; miss one and it stays a white rectangle in a dark window.
+        rebuild - but only for ttk widgets. The header, the cards' borders and
+        titles, the Listboxes and the results Canvas are classic Tk, drawn from
+        their own options, so they are recoloured by hand below; miss one and it
+        stays the old colour in the new mode.
         """
-        palette = THEMES["dark" if self.dark_var.get() else "light"]
+        palette = self._palette()
         style = ttk.Style(self.root)
-        style.theme_use(palette["ttk_theme"] or self._native_ttk_theme)
-        if palette["ttk_theme"]:
-            self._style_dark(style, palette)
+        style.theme_use("clam")
+        self._style_widgets(style, palette)
+        self.root.configure(background=palette["app"])
 
-        style.configure("Hint.TLabel", foreground=palette["hint"])
-        style.configure("Status.TLabel", foreground=palette["status"])
-        style.configure("Update.TLabel", foreground=palette["update"])
-        if palette["window"]:
-            self.root.configure(background=palette["window"])
-            style.configure("Hint.TLabel", background=palette["window"])
-            style.configure("Status.TLabel", background=palette["window"])
-            style.configure("Update.TLabel", background=palette["window"])
-
+        for card in self._cards:
+            if card.outer.winfo_exists():
+                card.recolour(palette)
+        self._theme_header(palette)
         for listbox in (self.listbox, self.ct_listbox):
             listbox.configure(
-                background=palette["text_bg"],
-                foreground=palette["text_fg"],
+                background=palette["field"],
+                foreground=palette["text"],
                 selectbackground=palette["select_bg"],
                 selectforeground=palette["select_fg"],
+                highlightbackground=palette["border"],
+                highlightcolor=palette["accent"],
+                highlightthickness=1,
+                relief=tk.FLAT,
+                borderwidth=0,
+                activestyle="none",
             )
         self._theme_results_window()
         self._theme_exclusions_window()
@@ -545,18 +634,36 @@ class SkillsGui:
         # set before that happens - which is why they are refreshed on every
         # theme change rather than once at startup.
         for option, value in (
-            ("*TCombobox*Listbox.background", palette["text_bg"]),
-            ("*TCombobox*Listbox.foreground", palette["text_fg"]),
+            ("*TCombobox*Listbox.background", palette["field"]),
+            ("*TCombobox*Listbox.foreground", palette["text"]),
             ("*TCombobox*Listbox.selectBackground", palette["select_bg"]),
             ("*TCombobox*Listbox.selectForeground", palette["select_fg"]),
         ):
             self.root.option_add(option, value)
 
-        self._set_dark_title_bar(bool(palette["ttk_theme"]))
-        # clam and the native theme pad labels differently, so the height held
-        # for descriptions is re-measured in the theme now in force.
+        self._set_dark_title_bar(bool(self.dark_var.get()))
+        # Padding and font metrics changed with the theme, so the height held
+        # for descriptions is re-measured in the one now in force.
         if self.skills:
             self._size_description_box()
+
+    def _theme_header(self, palette: dict) -> None:
+        """The title band and the update banner, both classic Tk."""
+        header = getattr(self, "header", None)
+        if header is None:
+            return
+        for widget in (header, self.header_title, self.header_subtitle):
+            widget.configure(background=palette["header_bg"])
+        self.header_title.configure(foreground=palette["header_fg"])
+        self.header_subtitle.configure(foreground=palette["header_dim"])
+        self.update_banner.configure(
+            background=palette["update_bg"],
+            highlightbackground=palette["update_border"],
+            highlightcolor=palette["update_border"],
+        )
+        self.update_label.configure(
+            background=palette["update_bg"], foreground=palette["update_fg"]
+        )
 
     def _theme_results_window(self) -> None:
         """Colour the results Toplevel, if it is open.
@@ -565,91 +672,133 @@ class SkillsGui:
         redrawn in the new colours instead - and the Toplevel carries its own
         background rather than inheriting the root's.
         """
-        palette = THEMES["dark" if self.dark_var.get() else "light"]
         window = getattr(self, "results_window", None)
         if window is None or not window.winfo_exists():
             return
-        if palette["window"]:
-            window.configure(background=palette["window"])
-        else:
-            window.configure(background=self.root.cget("background"))
+        window.configure(background=self._palette()["app"])
         if self.gear_sets:
             self._render_current_set()
 
     @staticmethod
-    def _style_dark(style: ttk.Style, palette: dict) -> None:
-        """Colour clam's elements. Only reached in dark mode."""
-        window, surface = palette["window"], palette["surface"]
+    def _style_widgets(style: ttk.Style, palette: dict) -> None:
+        """Colour clam's elements for either mode.
+
+        The default for everything is the card surface, because nearly every
+        widget sits inside a card. The few that sit on the window behind the
+        cards - tab pages, the columns that hold cards, the gaps - use the
+        App styles instead, so the cards read as raised.
+        """
+        app, surface = palette["app"], palette["surface"]
         text, border = palette["text"], palette["border"]
+        accent, field = palette["accent"], palette["field"]
 
         style.configure(
             ".",
-            background=window,
+            background=surface,
             foreground=text,
-            fieldbackground=surface,
+            fieldbackground=field,
             bordercolor=border,
             # clam draws its 3D relief from these two; matching them to the
             # background is what flattens the bevels instead of leaving pale
             # highlights around every widget.
-            lightcolor=window,
-            darkcolor=window,
-            troughcolor=surface,
+            lightcolor=surface,
+            darkcolor=surface,
+            troughcolor=app,
             arrowcolor=text,
             insertcolor=text,
+            focuscolor=accent,
+            selectbackground=palette["select_bg"],
+            selectforeground=palette["select_fg"],
         )
         style.map(".", foreground=[("disabled", palette["disabled"])])
 
-        style.configure("TLabelframe", background=window, bordercolor=border)
-        style.configure("TLabelframe.Label", background=window, foreground=text)
-        style.configure("TButton", background=surface, foreground=text)
+        style.configure("App.TFrame", background=app)
+        style.configure("Header.TFrame", background=palette["header_bg"])
+        style.configure("Hint.TLabel", foreground=palette["hint"])
+        style.configure("Status.TLabel", foreground=palette["status"])
+        style.configure("AppStatus.TLabel", foreground=palette["status"], background=app)
+        style.configure("App.TLabel", background=app, font=(FAMILY, 11, "bold"),
+                        foreground=palette["title_fg"])
+        # A filter row ticked to Exclude: its label takes the results'
+        # "short of the mark" red, so what is left out reads at a glance.
+        style.configure("Excluded.TLabel", foreground=palette["low"])
+        style.configure("Header.TCheckbutton", background=palette["header_bg"],
+                        foreground=palette["header_fg"], indicatorbackground=palette["header_bg"],
+                        indicatorforeground=palette["header_fg"])
+        style.map(
+            "Header.TCheckbutton",
+            background=[("active", palette["header_bg"])],
+            foreground=[("active", palette["header_fg"])],
+            indicatorbackground=[("selected", accent), ("pressed", accent)],
+        )
+
+        style.configure("TButton", background=surface, foreground=text, padding=(10, 4),
+                        bordercolor=border, focusthickness=0)
         style.map(
             "TButton",
-            background=[("pressed", border), ("active", palette["hover"])],
+            background=[("disabled", surface), ("pressed", palette["pressed"]),
+                        ("active", palette["hover"])],
+            bordercolor=[("active", accent)],
         )
-        style.configure(
-            "TCombobox", fieldbackground=surface, background=surface, foreground=text
+        # The one primary action per window: Run, and Save Talisman.
+        style.configure("Accent.TButton", background=accent, foreground=palette["accent_fg"],
+                        bordercolor=accent, font=(FAMILY, 10, "bold"), padding=(16, 6))
+        style.map(
+            "Accent.TButton",
+            background=[("disabled", palette["pressed"]), ("pressed", palette["accent_active"]),
+                        ("active", palette["accent_active"])],
+            foreground=[("disabled", palette["disabled"])],
+            bordercolor=[("active", palette["accent_active"])],
         )
+        style.configure("TCombobox", fieldbackground=field, background=surface,
+                        foreground=text, arrowsize=12, padding=(4, 2))
         # readonly is its own state for a combobox: without this map, every
-        # dropdown in this GUI stays light, because they are all readonly.
+        # dropdown in this GUI keeps clam's grey, because they are all readonly.
         style.map(
             "TCombobox",
-            fieldbackground=[("readonly", surface)],
-            background=[("readonly", surface)],
-            foreground=[("readonly", text)],
+            fieldbackground=[("readonly", field), ("disabled", surface)],
+            background=[("readonly", surface), ("active", palette["hover"])],
+            foreground=[("readonly", text), ("disabled", palette["disabled"])],
+            bordercolor=[("focus", accent)],
         )
-        style.configure("TEntry", fieldbackground=surface, foreground=text)
-        style.configure(
-            "TSpinbox", fieldbackground=surface, background=surface, foreground=text
-        )
-        style.configure("TCheckbutton", background=window, foreground=text)
+        style.configure("TEntry", fieldbackground=field, foreground=text, padding=(4, 2))
+        style.map("TEntry", bordercolor=[("focus", accent)])
+        style.configure("TSpinbox", fieldbackground=field, background=surface,
+                        foreground=text, arrowsize=10, padding=(4, 1))
+        style.map("TSpinbox", bordercolor=[("focus", accent)])
+        style.configure("TCheckbutton", background=surface, foreground=text,
+                        indicatorbackground=field, indicatorforeground=palette["accent_fg"])
         style.map(
             "TCheckbutton",
-            background=[("active", window)],
-            indicatorcolor=[("selected", palette["select_bg"])],
+            background=[("active", surface)],
+            indicatorbackground=[("selected", accent), ("pressed", palette["hover"])],
         )
-        style.configure("TNotebook", background=window, bordercolor=border)
-        style.configure("TNotebook.Tab", background=surface, foreground=text)
-        style.map("TNotebook.Tab", background=[("selected", window)])
-        style.configure(
-            "TScrollbar", background=surface, troughcolor=window, bordercolor=border
+        style.configure("TNotebook", background=app, bordercolor=border,
+                        tabmargins=(8, 6, 8, 0))
+        style.configure("TNotebook.Tab", background=palette["title_bg"],
+                        foreground=palette["title_fg"], padding=(16, 6),
+                        bordercolor=border, font=(FAMILY, 10, "bold"))
+        style.map(
+            "TNotebook.Tab",
+            background=[("selected", surface), ("active", palette["hover"])],
+            foreground=[("selected", accent)],
+            expand=[("selected", (0, 2, 0, 0))],
         )
+        style.configure("TScrollbar", background=surface, troughcolor=app,
+                        bordercolor=border, arrowcolor=palette["hint"])
+        style.map("TScrollbar", background=[("active", palette["hover"])])
         style.configure("TSeparator", background=border)
-        # The Exclude Gear tree. Unlike the Listboxes, Treeview is ttk, so it
-        # follows the style - but clam's default Treeview is white, so it
-        # needs colours of its own like every other ttk widget here.
-        style.configure(
-            "Treeview",
-            background=palette["text_bg"],
-            fieldbackground=palette["text_bg"],
-            foreground=palette["text_fg"],
-            bordercolor=border,
-        )
+        style.configure("Horizontal.TProgressbar", background=accent, troughcolor=app,
+                        bordercolor=border, lightcolor=accent, darkcolor=accent)
+        style.configure("Treeview", background=field, fieldbackground=field,
+                        foreground=text, bordercolor=border, rowheight=22)
         style.map(
             "Treeview",
             background=[("selected", palette["select_bg"])],
             foreground=[("selected", palette["select_fg"])],
         )
-        style.configure("Treeview.Heading", background=surface, foreground=text)
+        style.configure("Treeview.Heading", background=palette["title_bg"],
+                        foreground=palette["title_fg"], font=(FAMILY, 10, "bold"))
 
     def _set_dark_title_bar(self, dark: bool) -> None:
         """Ask Windows for a dark title bar. Cosmetic, so failure is ignored.
@@ -728,34 +877,50 @@ class SkillsGui:
         self.update_banner.pack_forget()
 
     def _build_widgets(self) -> None:
-        chrome = ttk.Frame(self.root, padding=(8, 4, 8, 0))
-        chrome.pack(side=tk.TOP, fill=tk.X)
-        # Outside the notebook because it applies to the whole application
-        # rather than to any one tab's contents.
+        # The results window's header band, carried over as the application's
+        # title bar: name and loaded weights on the left, the two
+        # application-wide switches on the right, outside the notebook
+        # because they belong to no one tab.
+        self.header = tk.Frame(self.root, bd=0, padx=16, pady=10)
+        self.header.pack(side=tk.TOP, fill=tk.X)
+        self.header_title = tk.Label(
+            self.header, text="MH Wilds Build Optimiser", font=TITLE_FONT, bd=0
+        )
+        self.header_title.pack(side=tk.LEFT)
+        self.file_label_var = tk.StringVar(value="")
+        self.header_subtitle = tk.Label(
+            self.header, textvariable=self.file_label_var, font=(FAMILY, 9), bd=0,
+            padx=14,
+        )
+        self.header_subtitle.pack(side=tk.LEFT, anchor=tk.S, pady=(0, 3))
         ttk.Checkbutton(
-            chrome,
+            self.header,
             text="Dark Mode",
             variable=self.dark_var,
             command=self._on_theme_toggle,
+            style="Header.TCheckbutton",
         ).pack(side=tk.RIGHT)
         ttk.Checkbutton(
-            chrome,
+            self.header,
             text="Check for Updates",
             variable=self.check_updates_var,
             command=self._on_update_toggle,
-        ).pack(side=tk.RIGHT, padx=(0, 12))
+            style="Header.TCheckbutton",
+        ).pack(side=tk.RIGHT, padx=(0, 16))
 
         # Built now, shown only once the check finds this copy out of date,
         # so an up-to-date or offline start looks exactly as it did before.
-        self.update_banner = ttk.Frame(self.root, padding=(8, 4, 8, 0))
+        self.update_banner = tk.Frame(self.root, bd=0, highlightthickness=1, padx=12, pady=6)
         self.update_text_var = tk.StringVar(value="")
-        ttk.Label(
+        self.update_label = tk.Label(
             self.update_banner,
             textvariable=self.update_text_var,
-            style="Update.TLabel",
+            font=(FAMILY, 10, "bold"),
             wraplength=900,
             justify=tk.LEFT,
-        ).pack(side=tk.LEFT, fill=tk.X, expand=True)
+            anchor=tk.W,
+        )
+        self.update_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
         ttk.Button(
             self.update_banner, text="Dismiss", command=self._dismiss_update_banner
         ).pack(side=tk.RIGHT, padx=(8, 0))
@@ -763,14 +928,12 @@ class SkillsGui:
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        skills_tab = ttk.Frame(self.notebook)
-        filters_tab = ttk.Frame(self.notebook)
-        files_tab = ttk.Frame(self.notebook)
-        talismans_tab = ttk.Frame(self.notebook)
-        self.notebook.add(skills_tab, text="Skill Weights")
-        self.notebook.add(filters_tab, text="Filters")
-        self.notebook.add(files_tab, text="Skills File")
-        self.notebook.add(talismans_tab, text="Custom Talismans")
+        tabs = []
+        for title in ("Skill Weights", "Filters", "Skills File", "Custom Talismans"):
+            tab = ttk.Frame(self.notebook, style="App.TFrame", padding=(4, 2, 4, 8))
+            self.notebook.add(tab, text=title)
+            tabs.append(tab)
+        skills_tab, filters_tab, files_tab, talismans_tab = tabs
 
         self._build_skills_tab(skills_tab)
         self._build_filters_tab(filters_tab)
@@ -778,12 +941,13 @@ class SkillsGui:
         self._build_custom_talismans_tab(talismans_tab)
 
     def _build_skills_tab(self, parent: ttk.Frame) -> None:
-        """Run and Save Weights along the bottom, the editing panels above.
+        """Run along the bottom, the editing panels above.
 
         Each section is laid out the same way: hint, then controls. Order
-        matters to pack(). The two BOTTOM sections are packed before the body
-        so they claim their height first, and 'run' before 'save' so the
-        primary action sits at the very bottom edge.
+        matters to pack(): the BOTTOM section is packed before the body so it
+        claims its height first. Save Weights lives on the Skills File tab,
+        beside the other file actions, which keeps this tab inside a 1080p
+        screen at the 10-point font.
         """
         run = self._section(parent, "Run", side=tk.BOTTOM, fill=tk.X)
         options = ttk.Frame(run)
@@ -791,7 +955,7 @@ class SkillsGui:
 
         reserved_group = ttk.Frame(options)
         reserved_group.pack(side=tk.LEFT, anchor=tk.N)
-        _hint(reserved_group, "reserved", wrap=260).pack(side=tk.TOP, anchor=tk.W)
+        _hint(reserved_group, "reserved", wrap=360).pack(side=tk.TOP, anchor=tk.W)
         reserved_row = ttk.Frame(reserved_group)
         reserved_row.pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
         ttk.Label(reserved_row, text="Reserved Slots:").pack(side=tk.LEFT)
@@ -807,7 +971,7 @@ class SkillsGui:
 
         relax_group = ttk.Frame(options)
         relax_group.pack(side=tk.LEFT, anchor=tk.N, padx=(24, 0))
-        _hint(relax_group, "relax", wrap=420).pack(side=tk.TOP, anchor=tk.W)
+        _hint(relax_group, "relax", wrap=440).pack(side=tk.TOP, anchor=tk.W)
         self.relax_var = tk.BooleanVar(value=False)
         ttk.Checkbutton(
             relax_group,
@@ -816,7 +980,8 @@ class SkillsGui:
         ).pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
 
         self.run_button = ttk.Button(
-            options, text="Run Optimiser", command=self._run_optimiser
+            options, text="Run Optimiser", command=self._run_optimiser,
+            style="Accent.TButton",
         )
         self.run_button.pack(side=tk.RIGHT, anchor=tk.N)
         self.status_var = tk.StringVar(value="")
@@ -841,24 +1006,8 @@ class SkillsGui:
             progress_row, textvariable=self.progress_text_var, style="Hint.TLabel", width=48
         ).pack(side=tk.LEFT)
 
-        save = self._section(parent, "Save Weights", side=tk.BOTTOM, fill=tk.X)
-        _hint(save, "output", wrap=900).pack(side=tk.TOP, anchor=tk.W)
-        save_row = ttk.Frame(save)
-        save_row.pack(side=tk.TOP, fill=tk.X, pady=(GAP, 0))
-        ttk.Label(save_row, text="Output File:").pack(side=tk.LEFT)
-        self.output_name_var = tk.StringVar(value="skills_weighted.yaml")
-        ttk.Entry(save_row, textvariable=self.output_name_var, width=28).pack(
-            side=tk.LEFT, padx=(4, 4)
-        )
-        ttk.Button(save_row, text="Browse...", command=self._browse_save).pack(
-            side=tk.LEFT
-        )
-        ttk.Button(save_row, text="Save", command=self._save).pack(
-            side=tk.LEFT, padx=(4, 0)
-        )
-
-        body = ttk.Frame(parent)
-        body.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8)
+        body = ttk.Frame(parent, style="App.TFrame")
+        body.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=6)
 
         self._build_gear_section(body)
         self._build_skill_list_section(body)
@@ -877,10 +1026,25 @@ class SkillsGui:
         ttk.Button(file_row, text="Save Profile...", command=self._save_profile).pack(
             side=tk.LEFT, padx=(4, 0)
         )
-        self.file_label_var = tk.StringVar(value="")
         ttk.Label(
             file_row, textvariable=self.file_label_var, style="Hint.TLabel"
         ).pack(side=tk.LEFT, padx=(8, 0))
+
+        save = self._section(parent, "Save Weights", side=tk.TOP, fill=tk.X)
+        _hint(save, "output", wrap=900).pack(side=tk.TOP, anchor=tk.W)
+        save_row = ttk.Frame(save)
+        save_row.pack(side=tk.TOP, fill=tk.X, pady=(GAP, 0))
+        ttk.Label(save_row, text="Output File:").pack(side=tk.LEFT)
+        self.output_name_var = tk.StringVar(value="skills_weighted.yaml")
+        ttk.Entry(save_row, textvariable=self.output_name_var, width=28).pack(
+            side=tk.LEFT, padx=(4, 4)
+        )
+        ttk.Button(save_row, text="Browse...", command=self._browse_save).pack(
+            side=tk.LEFT
+        )
+        ttk.Button(save_row, text="Save", command=self._save).pack(
+            side=tk.LEFT, padx=(4, 0)
+        )
 
     # --- filters tab -----------------------------------------------------------
 
@@ -892,6 +1056,7 @@ class SkillsGui:
         the pair is always ticked without any handler keeping them in step.
         """
         self.filter_vars: dict[str, tk.StringVar] = {}
+        self.filter_labels: dict[str, ttk.Label] = {}
 
         top = self._section(parent, "Filters", side=tk.TOP, fill=tk.X)
         _hint(top, "filters", wrap=900).pack(side=tk.TOP, anchor=tk.W)
@@ -905,17 +1070,17 @@ class SkillsGui:
             summary_row, text="Include Everything", command=self._reset_filters
         ).pack(side=tk.RIGHT)
 
-        body = ttk.Frame(parent)
-        body.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8)
-        left = ttk.Frame(body)
+        body = ttk.Frame(parent, style="App.TFrame")
+        body.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=6)
+        left = ttk.Frame(body, style="App.TFrame")
         left.pack(side=tk.LEFT, anchor=tk.N, fill=tk.Y)
-        middle = ttk.Frame(body)
+        middle = ttk.Frame(body, style="App.TFrame")
         middle.pack(side=tk.LEFT, anchor=tk.N, fill=tk.Y, padx=(8, 0))
-        right = ttk.Frame(body)
+        right = ttk.Frame(body, style="App.TFrame")
         right.pack(side=tk.LEFT, anchor=tk.N, fill=tk.BOTH, expand=True, padx=(8, 0))
 
-        armour = ttk.LabelFrame(left, text="Armour Sets", padding=SECTION_PAD)
-        armour.pack(side=tk.TOP, fill=tk.X, pady=(6, 0))
+        armour = self._card(left, "Armour Sets")
+        armour.pack(side=tk.TOP, fill=tk.X, pady=(8, 0))
         _hint(armour, "filter_armour", wrap=280).pack(side=tk.TOP, anchor=tk.W)
         grid = self._filter_grid(armour)
         for letter in VARIANTS:
@@ -925,8 +1090,8 @@ class SkillsGui:
         for rarity in RARITIES:
             self._filter_row(grid, f"rarity:{rarity}", f"Rarity {rarity}")
 
-        pieces = ttk.LabelFrame(middle, text="Armour Pieces", padding=SECTION_PAD)
-        pieces.pack(side=tk.TOP, fill=tk.X, pady=(6, 0))
+        pieces = self._card(middle, "Armour Pieces")
+        pieces.pack(side=tk.TOP, fill=tk.X, pady=(8, 0))
         _hint(pieces, "filter_pieces", wrap=300).pack(side=tk.TOP, anchor=tk.W)
         grid = self._filter_grid(pieces)
         self._filter_row(grid, "slotless", "Pieces with no decoration slots")
@@ -938,8 +1103,8 @@ class SkillsGui:
         ).grid(row=row, column=3, sticky=tk.W, padx=(6, 0))
         self.min_defense_var.trace_add("write", lambda *_a: self._refresh_filter_summary())
 
-        transcend = ttk.LabelFrame(middle, text="Transcendence", padding=SECTION_PAD)
-        transcend.pack(side=tk.TOP, fill=tk.X, pady=(6, 0))
+        transcend = self._card(middle, "Transcendence")
+        transcend.pack(side=tk.TOP, fill=tk.X, pady=(8, 0))
         _hint(transcend, "transcendence", wrap=300).pack(side=tk.TOP, anchor=tk.W)
         self.transcendence_var = tk.BooleanVar(value=True)
         ttk.Checkbutton(
@@ -947,15 +1112,15 @@ class SkillsGui:
             command=self._refresh_filter_summary,
         ).pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
 
-        talismans = ttk.LabelFrame(middle, text="Talismans", padding=SECTION_PAD)
-        talismans.pack(side=tk.TOP, fill=tk.X, pady=(6, 0))
+        talismans = self._card(middle, "Talismans")
+        talismans.pack(side=tk.TOP, fill=tk.X, pady=(8, 0))
         _hint(talismans, "filter_talismans", wrap=300).pack(side=tk.TOP, anchor=tk.W)
         grid = self._filter_grid(talismans)
         for tier in TALISMAN_TIERS:
             self._filter_row(grid, f"tier:{tier}", f"Tier {TIER_NUMERALS[tier]} talismans")
 
-        resist = ttk.LabelFrame(right, text="Resistances", padding=SECTION_PAD)
-        resist.pack(side=tk.TOP, fill=tk.X, pady=(6, 0))
+        resist = self._card(right, "Resistances")
+        resist.pack(side=tk.TOP, fill=tk.X, pady=(8, 0))
         _hint(resist, "filter_resistances", wrap=320).pack(side=tk.TOP, anchor=tk.W)
         grid = self._filter_grid(resist)
         self.resistance_op_vars: dict[str, tk.StringVar] = {}
@@ -982,8 +1147,8 @@ class SkillsGui:
 
     def _build_targets_section(self, parent: tk.Widget) -> None:
         """A tick and a number per total: unticked means no target."""
-        box = ttk.LabelFrame(parent, text="Targets", padding=SECTION_PAD)
-        box.pack(side=tk.TOP, fill=tk.X, pady=(6, 0))
+        box = self._card(parent, "Targets")
+        box.pack(side=tk.TOP, fill=tk.X, pady=(8, 0))
         _hint(box, "targets", wrap=320).pack(side=tk.TOP, anchor=tk.W)
         grid = ttk.Frame(box)
         grid.pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
@@ -1055,7 +1220,9 @@ class SkillsGui:
         """One category: its label, then the Include and Exclude boxes."""
         row = grid.grid_size()[1]
         var = tk.StringVar(value=INCLUDE)
-        ttk.Label(grid, text=label).grid(row=row, column=0, sticky=tk.W, pady=1)
+        label_widget = ttk.Label(grid, text=label)
+        label_widget.grid(row=row, column=0, sticky=tk.W, pady=1)
+        self.filter_labels[key] = label_widget
         for column, (on, off) in enumerate(((INCLUDE, EXCLUDE), (EXCLUDE, INCLUDE)), start=1):
             ttk.Checkbutton(
                 grid, variable=var, onvalue=on, offvalue=off,
@@ -1152,6 +1319,8 @@ class SkillsGui:
         before running rather than discovered as an empty result."""
         if not hasattr(self, "filter_summary_var"):
             return  # a trace firing while the tab is still being built
+        for key, label in getattr(self, "filter_labels", {}).items():
+            label.configure(style="Excluded.TLabel" if self._excluded(key) else "TLabel")
         filters = self._current_filters()
         if filters.is_default():
             self.filter_summary_var.set("Nothing filtered out.")
@@ -1166,11 +1335,11 @@ class SkillsGui:
             text += " Transcending off."
         self.filter_summary_var.set(text)
 
-    def _section(self, parent: tk.Widget, title: str, **pack_options) -> ttk.LabelFrame:
-        """One titled box, padded the same as every other box."""
-        frame = ttk.LabelFrame(parent, text=title, padding=SECTION_PAD)
-        frame.pack(padx=8, pady=(6, 0), **pack_options)
-        return frame
+    def _section(self, parent: tk.Widget, title: str, **pack_options) -> Card:
+        """One card, spaced the same as every other card."""
+        card = self._card(parent, title)
+        card.pack(padx=6, pady=(8, 0), **pack_options)
+        return card
 
     def _build_gear_section(self, body: ttk.Frame) -> None:
         """Pinned armour and the Gogma bonus point, as one group.
@@ -1183,10 +1352,10 @@ class SkillsGui:
         against it. Anchored north rather than filling, so the box ends where
         its controls do instead of bordering a column of empty space.
         """
-        gear = ttk.LabelFrame(body, text="Fixed Gear", padding=SECTION_PAD)
-        gear.pack(side=tk.LEFT, anchor=tk.N, pady=(6, 0))
+        gear = self._card(body, "Fixed Gear")
+        gear.pack(side=tk.LEFT, anchor=tk.N, pady=(8, 0))
 
-        _hint(gear, "pins", wrap=280).pack(side=tk.TOP, anchor=tk.W)
+        _hint(gear, "pins", wrap=330).pack(side=tk.TOP, anchor=tk.W)
         pins = ttk.Frame(gear)
         pins.pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
 
@@ -1205,7 +1374,7 @@ class SkillsGui:
                 width=24,
             )
             combo.grid(row=index * 2, column=1, sticky=tk.W, padx=(4, 0), pady=(2, 0))
-            detail = ttk.Label(pins, text="", style="Hint.TLabel", wraplength=280)
+            detail = ttk.Label(pins, text="", style="Hint.TLabel", wraplength=330)
             detail.grid(row=index * 2 + 1, column=0, columnspan=2, sticky=tk.W)
             # Hold the row open whether or not a pin is set, so choosing one
             # doesn't grow the panel and push the Gogma selectors off the bottom.
@@ -1230,7 +1399,7 @@ class SkillsGui:
         self.talisman_pin_combo.grid(
             row=row, column=1, sticky=tk.W, padx=(4, 0), pady=(2, 0)
         )
-        detail = ttk.Label(pins, text="", style="Hint.TLabel", wraplength=280)
+        detail = ttk.Label(pins, text="", style="Hint.TLabel", wraplength=330)
         detail.grid(row=row + 1, column=0, columnspan=2, sticky=tk.W)
         pins.grid_rowconfigure(row + 1, minsize=PIN_DETAIL_HEIGHT)
         var.trace_add("write", lambda *_a: self._on_pin_change(TALISMAN_SLOT))
@@ -1239,10 +1408,10 @@ class SkillsGui:
         self._refresh_talisman_pin_options()
 
         ttk.Separator(gear, orient=tk.HORIZONTAL).pack(
-            side=tk.TOP, fill=tk.X, pady=(10, 6)
+            side=tk.TOP, fill=tk.X, pady=(8, 5)
         )
 
-        _hint(gear, "exclude", wrap=280).pack(side=tk.TOP, anchor=tk.W)
+        _hint(gear, "exclude", wrap=330).pack(side=tk.TOP, anchor=tk.W)
         exclude_row = ttk.Frame(gear)
         exclude_row.pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
         ttk.Button(
@@ -1254,11 +1423,11 @@ class SkillsGui:
         ).pack(side=tk.LEFT, padx=(8, 0))
 
         ttk.Separator(gear, orient=tk.HORIZONTAL).pack(
-            side=tk.TOP, fill=tk.X, pady=(10, 6)
+            side=tk.TOP, fill=tk.X, pady=(8, 5)
         )
 
         ttk.Label(gear, text="Weapon Slots").pack(side=tk.TOP, anchor=tk.W)
-        _hint(gear, "weapon_slots", wrap=280).pack(side=tk.TOP, anchor=tk.W, pady=(2, 0))
+        _hint(gear, "weapon_slots", wrap=330).pack(side=tk.TOP, anchor=tk.W, pady=(2, 0))
         weapon_row = ttk.Frame(gear)
         weapon_row.pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
         self.weapon_slot_vars: list[tk.StringVar] = []
@@ -1274,11 +1443,11 @@ class SkillsGui:
             self.weapon_slot_vars.append(var)
 
         ttk.Separator(gear, orient=tk.HORIZONTAL).pack(
-            side=tk.TOP, fill=tk.X, pady=(10, 6)
+            side=tk.TOP, fill=tk.X, pady=(8, 5)
         )
 
         ttk.Label(gear, text="Gogma Weapon Skills").pack(side=tk.TOP, anchor=tk.W)
-        _hint(gear, "gogma", wrap=280).pack(side=tk.TOP, anchor=tk.W, pady=(2, 0))
+        _hint(gear, "gogma", wrap=330).pack(side=tk.TOP, anchor=tk.W, pady=(2, 0))
         gogma = ttk.Frame(gear)
         gogma.pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
 
@@ -1310,8 +1479,8 @@ class SkillsGui:
         The type filter used to sit in its own row above the body, where it read
         as a page-level control rather than what it is: a filter on this list.
         """
-        skills = ttk.LabelFrame(body, text="Skills", padding=SECTION_PAD)
-        skills.pack(side=tk.LEFT, anchor=tk.N, fill=tk.Y, padx=(8, 0), pady=(6, 0))
+        skills = self._card(body, "Skills")
+        skills.pack(side=tk.LEFT, anchor=tk.N, fill=tk.Y, padx=(8, 0), pady=(8, 0))
 
         _hint(skills, "type", wrap=250).pack(side=tk.TOP, anchor=tk.W)
         type_row = ttk.Frame(skills)
@@ -1369,13 +1538,13 @@ class SkillsGui:
         ).pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
 
     def _build_weighting_section(self, body: ttk.Frame) -> None:
-        detail = ttk.LabelFrame(body, text="Skill Weighting", padding=SECTION_PAD)
+        detail = self._card(body, "Skill Weighting")
         detail.pack(side=tk.LEFT, anchor=tk.N, fill=tk.BOTH, expand=True,
-                    padx=(8, 0), pady=(6, 0))
+                    padx=(8, 0), pady=(8, 0))
 
         ttk.Label(detail, text="Skill Information:").pack(anchor=tk.W, pady=(0, 2))
 
-        self.name_label = ttk.Label(detail, text="", font=("Segoe UI", 12, "bold"))
+        self.name_label = ttk.Label(detail, text="", font=SKILL_NAME_FONT)
         self.name_label.pack(anchor=tk.W)
 
         self.info_frame = ttk.Frame(detail)
@@ -1409,7 +1578,7 @@ class SkillsGui:
         # Rebuilt per skill by _fill_levels: one row per level, the level (or
         # set pieces) in a narrow column and the game's effect text beside it.
         self.levels_frame = ttk.Frame(self.desc_content)
-        self.levels_frame.pack(anchor=tk.NW, fill=tk.X, pady=(6, 0))
+        self.levels_frame.pack(anchor=tk.NW, fill=tk.X, pady=(8, 0))
 
         # Both dials share one grid so their captions share column 0, which
         # sizes itself to the longer of them. Packed separately, each dropdown
@@ -1692,7 +1861,7 @@ class SkillsGui:
     def _refresh_exclusion_states(self) -> None:
         """Rewrite the Status column in place, keeping selection and scroll."""
         tree = self.exclusion_tree
-        palette = THEMES["dark" if self.dark_var.get() else "light"]
+        palette = make_palette(bool(self.dark_var.get()))
         tree.tag_configure("excluded", foreground=palette["hint"])
         for set_iid in tree.get_children():
             for iid in (set_iid, *tree.get_children(set_iid)):
@@ -1700,12 +1869,10 @@ class SkillsGui:
                 tree.item(iid, values=(state,), tags=("excluded",) if state else ())
 
     def _theme_exclusions_window(self) -> None:
-        palette = THEMES["dark" if self.dark_var.get() else "light"]
         window = getattr(self, "exclusions_window", None)
         if window is None or not window.winfo_exists():
             return
-        if palette["window"]:
-            window.configure(background=palette["window"])
+        window.configure(background=make_palette(bool(self.dark_var.get()))["app"])
         self._refresh_exclusion_states()
 
     def _build_custom_talismans_tab(self, parent: ttk.Frame) -> None:
@@ -1742,11 +1909,11 @@ class SkillsGui:
             style="Hint.TLabel",
         ).pack(side=tk.LEFT, padx=(8, 0))
 
-        body = ttk.Frame(parent)
-        body.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8)
+        body = ttk.Frame(parent, style="App.TFrame")
+        body.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=6)
 
-        list_box = ttk.LabelFrame(body, text="Talismans", padding=SECTION_PAD)
-        list_box.pack(side=tk.LEFT, anchor=tk.N, fill=tk.Y, pady=(6, 0))
+        list_box = self._card(body, "Talismans")
+        list_box.pack(side=tk.LEFT, anchor=tk.N, fill=tk.Y, pady=(8, 0))
         list_frame = ttk.Frame(list_box)
         list_frame.pack(side=tk.LEFT, fill=tk.Y)
         self.ct_listbox = tk.Listbox(
@@ -1763,9 +1930,9 @@ class SkillsGui:
         )
         self.ct_delete_button.pack(side=tk.TOP, fill=tk.X, pady=(8, 0))
 
-        form = ttk.LabelFrame(body, text="Talisman Details", padding=SECTION_PAD)
+        form = self._card(body, "Talisman Details")
         form.pack(side=tk.LEFT, anchor=tk.N, fill=tk.BOTH, expand=True,
-                  padx=(8, 0), pady=(6, 0))
+                  padx=(8, 0), pady=(8, 0))
 
         _hint(form, "ct_name", wrap=420).grid(
             row=0, column=0, columnspan=4, sticky=tk.W
@@ -1815,12 +1982,18 @@ class SkillsGui:
         )
         self.ct_armour_slot_widgets: list[ttk.Combobox] = []
         self.ct_armour_slot_vars: list[tk.StringVar] = []
+        # In a row of their own: on the form's grid, the second and third
+        # boxes landed in the skill rows' level and spare columns, far from
+        # the first.
+        armour_row = ttk.Frame(form)
+        armour_row.grid(row=slot_row, column=1, columnspan=3, sticky=tk.W, padx=(8, 0))
         for i in range(MAX_TALISMAN_SLOTS):
             var = tk.StringVar(value="0")
             combo = ttk.Combobox(
-                form, textvariable=var, values=["0", "1", "2", "3"], state="readonly", width=4
+                armour_row, textvariable=var, values=["0", "1", "2", "3"], state="readonly",
+                width=4,
             )
-            combo.grid(row=slot_row, column=1 + i, sticky=tk.W, padx=(8 if i == 0 else 4, 0))
+            combo.pack(side=tk.LEFT, padx=(0 if i == 0 else 4, 0))
             self.ct_armour_slot_widgets.append(combo)
             self.ct_armour_slot_vars.append(var)
 
@@ -1832,12 +2005,18 @@ class SkillsGui:
         )
         self.ct_weapon_slot_widgets: list[ttk.Combobox] = []
         self.ct_weapon_slot_vars: list[tk.StringVar] = []
+        # In a row of their own: on the form's grid, the second and third
+        # boxes landed in the skill rows' level and spare columns, far from
+        # the first.
+        weapon_row = ttk.Frame(form)
+        weapon_row.grid(row=slot_row + 2, column=1, columnspan=3, sticky=tk.W, padx=(8, 0))
         for i in range(MAX_TALISMAN_SLOTS):
             var = tk.StringVar(value="0")
             combo = ttk.Combobox(
-                form, textvariable=var, values=["0", "1", "2", "3"], state="readonly", width=4
+                weapon_row, textvariable=var, values=["0", "1", "2", "3"], state="readonly",
+                width=4,
             )
-            combo.grid(row=slot_row + 2, column=1 + i, sticky=tk.W, padx=(8 if i == 0 else 4, 0))
+            combo.pack(side=tk.LEFT, padx=(0 if i == 0 else 4, 0))
             self.ct_weapon_slot_widgets.append(combo)
             self.ct_weapon_slot_vars.append(var)
 
@@ -1849,14 +2028,15 @@ class SkillsGui:
         )
         self.ct_new_button.pack(side=tk.LEFT)
         self.ct_save_button = ttk.Button(
-            buttons, text="Save Talisman", command=self._save_custom_talisman
+            buttons, text="Save Talisman", command=self._save_custom_talisman,
+            style="Accent.TButton",
         )
         self.ct_save_button.pack(side=tk.LEFT, padx=(8, 0))
 
-        status_row = ttk.Frame(parent, padding=(16, 4, 16, 8))
+        status_row = ttk.Frame(parent, padding=(10, 4, 10, 0), style="App.TFrame")
         status_row.pack(side=tk.BOTTOM, fill=tk.X)
         self.ct_status_var = tk.StringVar(value="")
-        ttk.Label(status_row, textvariable=self.ct_status_var, style="Status.TLabel").pack(
+        ttk.Label(status_row, textvariable=self.ct_status_var, style="AppStatus.TLabel").pack(
             side=tk.LEFT
         )
 
@@ -2871,20 +3051,24 @@ class SkillsGui:
             window.protocol("WM_DELETE_WINDOW", self._close_results_window)
             self.results_window = window
 
-            nav = ttk.Frame(window, padding=8)
+            # Everything around the canvas sits on the window colour, so the
+            # drawn set's boxes read as the only cards, as on the main window.
+            nav = ttk.Frame(window, padding=8, style="App.TFrame")
             nav.pack(side=tk.TOP, fill=tk.X)
             self.prev_button = ttk.Button(
                 nav, text="< Previous", command=self._show_prev_set
             )
             self.prev_button.pack(side=tk.LEFT)
             self.set_position_var = tk.StringVar()
-            ttk.Label(nav, textvariable=self.set_position_var, anchor=tk.CENTER).pack(
+            ttk.Label(
+                nav, textvariable=self.set_position_var, anchor=tk.CENTER, style="App.TLabel"
+            ).pack(
                 side=tk.LEFT, fill=tk.X, expand=True
             )
             self.next_button = ttk.Button(nav, text="Next >", command=self._show_next_set)
             self.next_button.pack(side=tk.RIGHT)
 
-            exports = ttk.Frame(window, padding=(8, 0, 8, 8))
+            exports = ttk.Frame(window, padding=(8, 0, 8, 8), style="App.TFrame")
             exports.pack(side=tk.BOTTOM, fill=tk.X)
             ttk.Button(exports, text="Copy This Set", command=self._copy_current_set).pack(
                 side=tk.LEFT
@@ -2894,10 +3078,10 @@ class SkillsGui:
             )
             self.results_status_var = tk.StringVar(value="")
             ttk.Label(
-                exports, textvariable=self.results_status_var, style="Status.TLabel"
+                exports, textvariable=self.results_status_var, style="AppStatus.TLabel"
             ).pack(side=tk.LEFT, padx=(12, 0))
 
-            view_frame = ttk.Frame(window)
+            view_frame = ttk.Frame(window, style="App.TFrame")
             view_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=(0, 8))
             view_frame.rowconfigure(0, weight=1)
             view_frame.columnconfigure(0, weight=1)
