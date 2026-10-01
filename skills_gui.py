@@ -20,6 +20,17 @@ from tkinter import filedialog, font as tkfont, messagebox, ttk
 
 import yaml
 
+from gear_filters import (
+    ELEMENTS,
+    RARITIES,
+    TALISMAN_TIERS,
+    VARIANT_NAMES,
+    VARIANTS,
+    GearFilters,
+    ResistanceRule,
+    apply_filters,
+    pin_conflicts,
+)
 from load_data import (
     DATA_DIR,
     SKILLS_PATH,
@@ -173,6 +184,29 @@ HINTS = {
         "the file being edited above. craftable_talismans.yaml is never "
         "modified."
     ),
+    "filters": (
+        "Every option starts on Include. Tick Exclude to keep that whole "
+        "category out of the search; the count below says how much is left "
+        "out. Pins on a filtered piece are refused rather than overridden."
+    ),
+    "filter_armour": "Armour sets by variant, rank and rarity.",
+    "filter_pieces": (
+        "Pieces by what they offer. Defence is the piece's maximum, after "
+        "the transcending choice below."
+    ),
+    "filter_talismans": (
+        "Craftable talismans by the tier their name ends in: III is every "
+        "'... Charm III'. Custom talismans are never filtered."
+    ),
+    "filter_resistances": (
+        "Exclude armour whose resistance to an element compares this way, "
+        "e.g. fire < 0 drops every set weak to fire."
+    ),
+    "transcendence": (
+        "On: rarity 5 and 6 armour counts with its transcended slots and "
+        "defence. Off: as it is before transcending, for armour you have "
+        "not upgraded."
+    ),
     "ct_name": "Shown in results. Any name that is not already in the file.",
     "ct_rarity": "Cosmetic here - the optimiser does not read it.",
     "ct_skills": "Up to three armour skills and the level each is granted at.",
@@ -188,6 +222,11 @@ HINTS = {
 # silent no-op, and the free-text box it replaces let you type one.
 WEIGHT_CHOICES = [str(v) for v in range(-1, 6)]
 LEVEL_WEIGHT_CHOICES = [str(v) for v in range(0, 6)]
+
+# How the operators read on screen; profiles and the CLI store the ASCII.
+OPERATOR_LABELS = {"<": "<", "<=": "\u2264", "=": "=", ">=": "\u2265", ">": ">"}
+TIER_NUMERALS = {1: "I", 2: "II", 3: "III", 4: "IV", 5: "V"}
+INCLUDE, EXCLUDE = "include", "exclude"
 
 WEIGHT_SCALE = (
     ("-1", "Avoid"),
@@ -277,6 +316,7 @@ class RunRequest:
     excluded_pieces: list[str] = field(default_factory=list)
     strict: bool = True
     weapon_slots: tuple[int, ...] = ()
+    filters: GearFilters = field(default_factory=GearFilters)
     # What the weights came from, for export headers: the loaded file's path,
     # marked when the run used edits not yet saved to it.
     source_label: str = ""
@@ -716,13 +756,16 @@ class SkillsGui:
         self.notebook.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         skills_tab = ttk.Frame(self.notebook)
+        filters_tab = ttk.Frame(self.notebook)
         files_tab = ttk.Frame(self.notebook)
         talismans_tab = ttk.Frame(self.notebook)
         self.notebook.add(skills_tab, text="Skill Weights")
+        self.notebook.add(filters_tab, text="Filters")
         self.notebook.add(files_tab, text="Skills File")
         self.notebook.add(talismans_tab, text="Custom Talismans")
 
         self._build_skills_tab(skills_tab)
+        self._build_filters_tab(filters_tab)
         self._build_skills_file_tab(files_tab)
         self._build_custom_talismans_tab(talismans_tab)
 
@@ -830,6 +873,225 @@ class SkillsGui:
         ttk.Label(
             file_row, textvariable=self.file_label_var, style="Hint.TLabel"
         ).pack(side=tk.LEFT, padx=(8, 0))
+
+    # --- filters tab -----------------------------------------------------------
+
+    def _build_filters_tab(self, parent: ttk.Frame) -> None:
+        """Include/Exclude pairs per category, plus transcending.
+
+        Each row's two boxes share one StringVar, each box writing its own
+        value when ticked and the other's when unticked, so exactly one of
+        the pair is always ticked without any handler keeping them in step.
+        """
+        self.filter_vars: dict[str, tk.StringVar] = {}
+
+        top = self._section(parent, "Filters", side=tk.TOP, fill=tk.X)
+        _hint(top, "filters", wrap=900).pack(side=tk.TOP, anchor=tk.W)
+        summary_row = ttk.Frame(top)
+        summary_row.pack(side=tk.TOP, fill=tk.X, pady=(GAP, 0))
+        self.filter_summary_var = tk.StringVar(value="")
+        ttk.Label(
+            summary_row, textvariable=self.filter_summary_var, style="Status.TLabel"
+        ).pack(side=tk.LEFT)
+        ttk.Button(
+            summary_row, text="Include Everything", command=self._reset_filters
+        ).pack(side=tk.RIGHT)
+
+        body = ttk.Frame(parent)
+        body.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8)
+        left = ttk.Frame(body)
+        left.pack(side=tk.LEFT, anchor=tk.N, fill=tk.Y)
+        middle = ttk.Frame(body)
+        middle.pack(side=tk.LEFT, anchor=tk.N, fill=tk.Y, padx=(8, 0))
+        right = ttk.Frame(body)
+        right.pack(side=tk.LEFT, anchor=tk.N, fill=tk.BOTH, expand=True, padx=(8, 0))
+
+        armour = ttk.LabelFrame(left, text="Armour Sets", padding=SECTION_PAD)
+        armour.pack(side=tk.TOP, fill=tk.X, pady=(6, 0))
+        _hint(armour, "filter_armour", wrap=280).pack(side=tk.TOP, anchor=tk.W)
+        grid = self._filter_grid(armour)
+        for letter in VARIANTS:
+            self._filter_row(grid, f"variant:{letter}", f"{VARIANT_NAMES[letter]} ({letter}) sets")
+        self._filter_row(grid, "rank:high", "High Rank armour")
+        self._filter_row(grid, "rank:low", "Low Rank armour")
+        for rarity in RARITIES:
+            self._filter_row(grid, f"rarity:{rarity}", f"Rarity {rarity}")
+
+        pieces = ttk.LabelFrame(middle, text="Armour Pieces", padding=SECTION_PAD)
+        pieces.pack(side=tk.TOP, fill=tk.X, pady=(6, 0))
+        _hint(pieces, "filter_pieces", wrap=300).pack(side=tk.TOP, anchor=tk.W)
+        grid = self._filter_grid(pieces)
+        self._filter_row(grid, "slotless", "Pieces with no decoration slots")
+        row = self._filter_row(grid, "mindef", "Pieces with defence below")
+        self.min_defense_var = tk.StringVar(value="70")
+        ttk.Spinbox(
+            grid, from_=0, to=200, textvariable=self.min_defense_var, width=5,
+            justify=tk.CENTER, command=self._refresh_filter_summary,
+        ).grid(row=row, column=3, sticky=tk.W, padx=(6, 0))
+        self.min_defense_var.trace_add("write", lambda *_a: self._refresh_filter_summary())
+
+        transcend = ttk.LabelFrame(middle, text="Transcendence", padding=SECTION_PAD)
+        transcend.pack(side=tk.TOP, fill=tk.X, pady=(6, 0))
+        _hint(transcend, "transcendence", wrap=300).pack(side=tk.TOP, anchor=tk.W)
+        self.transcendence_var = tk.BooleanVar(value=True)
+        ttk.Checkbutton(
+            transcend, text="Enable transcendence", variable=self.transcendence_var,
+            command=self._refresh_filter_summary,
+        ).pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
+
+        talismans = ttk.LabelFrame(middle, text="Talismans", padding=SECTION_PAD)
+        talismans.pack(side=tk.TOP, fill=tk.X, pady=(6, 0))
+        _hint(talismans, "filter_talismans", wrap=300).pack(side=tk.TOP, anchor=tk.W)
+        grid = self._filter_grid(talismans)
+        for tier in TALISMAN_TIERS:
+            self._filter_row(grid, f"tier:{tier}", f"Tier {TIER_NUMERALS[tier]} talismans")
+
+        resist = ttk.LabelFrame(right, text="Resistances", padding=SECTION_PAD)
+        resist.pack(side=tk.TOP, fill=tk.X, pady=(6, 0))
+        _hint(resist, "filter_resistances", wrap=320).pack(side=tk.TOP, anchor=tk.W)
+        grid = self._filter_grid(resist)
+        self.resistance_op_vars: dict[str, tk.StringVar] = {}
+        self.resistance_value_vars: dict[str, tk.StringVar] = {}
+        for element in ELEMENTS:
+            row = self._filter_row(grid, f"res:{element}", f"{element.capitalize()} resistance")
+            op_var = tk.StringVar(value=OPERATOR_LABELS["<"])
+            ttk.Combobox(
+                grid, textvariable=op_var, values=list(OPERATOR_LABELS.values()),
+                state="readonly", width=3,
+            ).grid(row=row, column=3, sticky=tk.W, padx=(6, 0))
+            value_var = tk.StringVar(value="0")
+            ttk.Spinbox(
+                grid, from_=-10, to=10, textvariable=value_var, width=4,
+                justify=tk.CENTER, command=self._refresh_filter_summary,
+            ).grid(row=row, column=4, sticky=tk.W, padx=(4, 0))
+            for var in (op_var, value_var):
+                var.trace_add("write", lambda *_a: self._refresh_filter_summary())
+            self.resistance_op_vars[element] = op_var
+            self.resistance_value_vars[element] = value_var
+
+        self._refresh_filter_summary()
+
+    def _filter_grid(self, parent: tk.Widget) -> ttk.Frame:
+        """A grid with Include / Exclude column headings above the boxes."""
+        grid = ttk.Frame(parent)
+        grid.pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
+        ttk.Label(grid, text="Include", style="Hint.TLabel").grid(row=0, column=1, padx=4)
+        ttk.Label(grid, text="Exclude", style="Hint.TLabel").grid(row=0, column=2, padx=4)
+        return grid
+
+    def _filter_row(self, grid: ttk.Frame, key: str, label: str) -> int:
+        """One category: its label, then the Include and Exclude boxes."""
+        row = grid.grid_size()[1]
+        var = tk.StringVar(value=INCLUDE)
+        ttk.Label(grid, text=label).grid(row=row, column=0, sticky=tk.W, pady=1)
+        for column, (on, off) in enumerate(((INCLUDE, EXCLUDE), (EXCLUDE, INCLUDE)), start=1):
+            ttk.Checkbutton(
+                grid, variable=var, onvalue=on, offvalue=off,
+                command=self._refresh_filter_summary,
+            ).grid(row=row, column=column)
+        self.filter_vars[key] = var
+        return row
+
+    def _excluded(self, key: str) -> bool:
+        return self.filter_vars[key].get() == EXCLUDE
+
+    def _current_filters(self) -> GearFilters:
+        """The tab as a GearFilters. A value box that does not parse counts
+        as that row's default, and _filter_input_problems names it."""
+        rules = []
+        labels = {v: k for k, v in OPERATOR_LABELS.items()}
+        for element in ELEMENTS:
+            if not self._excluded(f"res:{element}"):
+                continue
+            try:
+                value = int(self.resistance_value_vars[element].get())
+            except ValueError:
+                continue
+            op = labels.get(self.resistance_op_vars[element].get(), "<")
+            rules.append(ResistanceRule(element, op, value))
+        min_defense = 0
+        if self._excluded("mindef"):
+            try:
+                min_defense = max(0, int(self.min_defense_var.get()))
+            except ValueError:
+                pass
+        return GearFilters(
+            exclude_variants={v for v in VARIANTS if self._excluded(f"variant:{v}")},
+            exclude_ranks={r for r in ("high", "low") if self._excluded(f"rank:{r}")},
+            exclude_rarities={r for r in RARITIES if self._excluded(f"rarity:{r}")},
+            exclude_talisman_tiers={t for t in TALISMAN_TIERS if self._excluded(f"tier:{t}")},
+            transcendence=bool(self.transcendence_var.get()),
+            resistance_rules=rules,
+            min_defense=min_defense,
+            exclude_slotless=self._excluded("slotless"),
+        )
+
+    def _filter_input_problems(self) -> list[str]:
+        """Ticked rows whose number box does not hold a whole number."""
+        problems = []
+        if self._excluded("mindef"):
+            try:
+                int(self.min_defense_var.get())
+            except ValueError:
+                problems.append("The minimum defence must be a whole number.")
+        for element in ELEMENTS:
+            if self._excluded(f"res:{element}"):
+                try:
+                    int(self.resistance_value_vars[element].get())
+                except ValueError:
+                    problems.append(f"The {element} resistance value must be a whole number.")
+        return problems
+
+    def _set_filters(self, filters: GearFilters) -> None:
+        """Put a profile's filters on the tab."""
+        def put(key: str, excluded: bool) -> None:
+            self.filter_vars[key].set(EXCLUDE if excluded else INCLUDE)
+
+        for v in VARIANTS:
+            put(f"variant:{v}", v in filters.exclude_variants)
+        for r in ("high", "low"):
+            put(f"rank:{r}", r in filters.exclude_ranks)
+        for r in RARITIES:
+            put(f"rarity:{r}", r in filters.exclude_rarities)
+        for t in TALISMAN_TIERS:
+            put(f"tier:{t}", t in filters.exclude_talisman_tiers)
+        put("slotless", filters.exclude_slotless)
+        put("mindef", filters.min_defense > 0)
+        if filters.min_defense:
+            self.min_defense_var.set(str(filters.min_defense))
+        self.transcendence_var.set(filters.transcendence)
+        # One rule per element on this tab; a hand-edited profile with two
+        # for one element shows the last, and the summary says so.
+        by_element = {rule.element: rule for rule in filters.resistance_rules}
+        for element in ELEMENTS:
+            rule = by_element.get(element)
+            put(f"res:{element}", rule is not None)
+            if rule is not None:
+                self.resistance_op_vars[element].set(OPERATOR_LABELS[rule.op])
+                self.resistance_value_vars[element].set(str(rule.value))
+        self._refresh_filter_summary()
+
+    def _reset_filters(self) -> None:
+        self._set_filters(GearFilters())
+
+    def _refresh_filter_summary(self) -> None:
+        """Count what the filters leave out, so a filter's reach is visible
+        before running rather than discovered as an empty result."""
+        if not hasattr(self, "filter_summary_var"):
+            return  # a trace firing while the tab is still being built
+        filters = self._current_filters()
+        if filters.is_default():
+            self.filter_summary_var.set("Nothing filtered out.")
+            return
+        result = apply_filters(self.game_data, filters)
+        dropped = len(self.game_data.talismans) - len(result.game.talismans)
+        parts = [f"{len(result.removed)} of {len(self.game_data.armor)} armour pieces"]
+        if dropped:
+            parts.append(f"{dropped} of {len(self.game_data.talismans)} talismans")
+        text = "Filtered out: " + " and ".join(parts) + "."
+        if not filters.transcendence:
+            text += " Transcending off."
+        self.filter_summary_var.set(text)
 
     def _section(self, parent: tk.Widget, title: str, **pack_options) -> ttk.LabelFrame:
         """One titled box, padded the same as every other box."""
@@ -1922,6 +2184,7 @@ class SkillsGui:
             reserve=reserve,
             relax=bool(self.relax_var.get()),
             custom_talismans=stored_path(self.custom_talismans_source),
+            filters=self._current_filters(),
         )
 
     def _save_profile(self) -> None:
@@ -2016,6 +2279,7 @@ class SkillsGui:
         self.gogma_group_var.set(profile.gogma_group_skill or NONE_OPTION)
         self.reserved_slots_var.set(str(profile.reserve))
         self.relax_var.set(profile.relax)
+        self._set_filters(profile.filters)
         if talismans_path is None:
             self._clear_loaded_custom_talismans()
         else:
@@ -2338,6 +2602,18 @@ class SkillsGui:
                 )
                 return
 
+        problems = self._filter_input_problems()
+        filters = self._current_filters()
+        problems += pin_conflicts(
+            self.game_data, apply_filters(self.game_data, filters), pinned_pieces
+        )
+        if problems:
+            messagebox.showerror(
+                "Run Optimiser",
+                "\n".join(problems) + "\n\nChange the pins or the Filters tab and run again.",
+            )
+            return
+
         request = RunRequest(
             skills=self._effective_skills(),
             reserved_slots=reserved_slots,
@@ -2348,6 +2624,7 @@ class SkillsGui:
             excluded_pieces=sorted(self.excluded_pieces),
             strict=not self.relax_var.get(),
             weapon_slots=self._weapon_slots(),
+            filters=filters,
             source_label=str(self.current_path)
             + (" (with unsaved edits)" if self._has_unsaved_changes() else ""),
         )
@@ -2390,7 +2667,10 @@ class SkillsGui:
             result_queue.put(("progress", fraction, message, None))
 
         try:
-            game_data = self.game_data
+            # Filters first, before the custom talismans join: the tier
+            # filter is for craftable charms only (gear_filters.apply_filters).
+            filtered = apply_filters(self.game_data, request.filters)
+            game_data = filtered.game
             if request.custom_talismans:
                 game_data = replace(
                     game_data,
@@ -2405,7 +2685,7 @@ class SkillsGui:
                 pinned_pieces=request.pinned_pieces,
                 strict=request.strict,
                 excluded_sets=request.excluded_sets,
-                excluded_pieces=request.excluded_pieces,
+                excluded_pieces=sorted(set(request.excluded_pieces) | set(filtered.removed)),
                 weapon_slots=request.weapon_slots,
                 progress=progress,
                 should_stop=cancel.is_set if cancel is not None else None,
@@ -2653,6 +2933,7 @@ class SkillsGui:
             pinned_talisman=pinned_talisman,
             strict=request.strict,
             excluded=request.excluded_sets + request.excluded_pieces,
+            filters=request.filters.describe(),
         )
 
     def _write_results(self, path: Path) -> None:

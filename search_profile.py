@@ -22,6 +22,7 @@ from pathlib import Path
 
 import yaml
 
+from gear_filters import GearFilters
 from load_data import DATA_DIR, GameData, Skill, load_talismans
 from optimiser import (
     MAX_WEAPON_SLOTS,
@@ -45,6 +46,7 @@ PROFILE_KEYS = {
     "reserve",
     "relax",
     "custom_talismans",
+    "filters",
 }
 
 
@@ -61,6 +63,7 @@ class SearchProfile:
     reserve: int = RESERVED_SLOTS
     relax: bool = False
     custom_talismans: str | None = None  # as written: relative to the repo if inside it
+    filters: GearFilters = field(default_factory=GearFilters)
 
     def extra_bonus_pieces(self) -> dict[str, int]:
         """The Gogma choices in the form Optimiser takes."""
@@ -191,6 +194,7 @@ def load_profile(path: Path) -> SearchProfile:
         reserve=reserve,
         relax=relax,
         custom_talismans=raw.get("custom_talismans") or None,
+        filters=GearFilters.from_dict(raw.get("filters"), f"{name}: filters"),
     )
 
 
@@ -288,6 +292,9 @@ def save_profile(profile: SearchProfile, path: Path) -> None:
         "reserve": profile.reserve,
         "relax": profile.relax,
         "custom_talismans": profile.custom_talismans,
+        # Only the filters that differ from include-everything, so a
+        # profile from before filters existed reads the same once resaved.
+        "filters": profile.filters.to_dict(),
     }
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)

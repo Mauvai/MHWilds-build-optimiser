@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import math
+import re
 import sys
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -1866,6 +1867,52 @@ def _terminal_progress():
     return show
 
 
+_RULE = re.compile(r"^\s*([a-z]+)\s*(<=|>=|<|>|=)\s*(-?\d+)\s*$")
+
+
+def _cli_filters(args, base):
+    """The profile's filters with the command line's added on top.
+
+    Additive like --exclude-set: an option given here reads as "and also
+    leave this out". Imported here, not at the top, because gear_filters
+    imports this module.
+    """
+    from gear_filters import VARIANT_NAMES as variant_names, GearFilters, ResistanceRule
+
+    by_word = {name.lower(): letter for letter, name in variant_names.items()}
+    variants = set(base.exclude_variants)
+    for given in args.exclude_variant:
+        letter = by_word.get(given.lower(), given)
+        if letter not in variant_names:
+            raise ValueError(f"--exclude-variant: {given!r} is not α, β, γ, alpha, beta or gamma")
+        variants.add(letter)
+    for value, flag, valid in (
+        (args.exclude_rarity, "--exclude-rarity", range(1, 9)),
+        (args.exclude_talisman_tier, "--exclude-talisman-tier", range(1, 6)),
+    ):
+        bad = [v for v in value if v not in valid]
+        if bad:
+            raise ValueError(f"{flag}: {bad[0]} is outside {valid.start}-{valid.stop - 1}")
+    if args.min_defense is not None and args.min_defense < 0:
+        raise ValueError("--min-defense cannot be negative")
+    rules = list(base.resistance_rules)
+    for text in args.exclude_resistance:
+        match = _RULE.match(text.lower())
+        if not match:
+            raise ValueError(f"--exclude-resistance: {text!r} is not like 'fire<0'")
+        rules.append(ResistanceRule(match.group(1), match.group(2), int(match.group(3))))
+    return GearFilters(
+        exclude_variants=variants,
+        exclude_ranks=set(base.exclude_ranks) | set(args.exclude_rank),
+        exclude_rarities=set(base.exclude_rarities) | set(args.exclude_rarity),
+        exclude_talisman_tiers=set(base.exclude_talisman_tiers) | set(args.exclude_talisman_tier),
+        transcendence=base.transcendence and not args.no_transcendence,
+        resistance_rules=rules,
+        min_defense=args.min_defense if args.min_defense is not None else base.min_defense,
+        exclude_slotless=base.exclude_slotless or args.exclude_slotless,
+    )
+
+
 def main() -> None:
     # Piped or redirected, Python on Windows writes stdout and stderr in the
     # ANSI code page, which has no α/β/γ, so the first armour name printed
@@ -1946,6 +1993,65 @@ def main() -> None:
         action="store_true",
         help="allow sets that miss a mandatory skill rather than returning fewer",
     )
+    filters = parser.add_argument_group(
+        "filters",
+        "Leave whole categories of gear out; each adds to a profile's filters.",
+    )
+    filters.add_argument(
+        "--exclude-variant",
+        action="append",
+        default=[],
+        metavar="LETTER",
+        help="leave out every set of this variant: α, β or γ, or alpha, beta, gamma (repeatable)",
+    )
+    filters.add_argument(
+        "--exclude-rank",
+        action="append",
+        default=[],
+        choices=("high", "low"),
+        help="leave out all High or Low Rank armour (repeatable)",
+    )
+    filters.add_argument(
+        "--exclude-rarity",
+        action="append",
+        default=[],
+        type=int,
+        metavar="N",
+        help="leave out armour of this rarity, 1-8 (repeatable)",
+    )
+    filters.add_argument(
+        "--exclude-talisman-tier",
+        action="append",
+        default=[],
+        type=int,
+        metavar="N",
+        help="leave out craftable talismans of this tier, 1-5: 3 is every 'III' charm (repeatable)",
+    )
+    filters.add_argument(
+        "--no-transcendence",
+        action="store_true",
+        help="use each transcendable piece's slots and defence before transcending",
+    )
+    filters.add_argument(
+        "--min-defense",
+        type=int,
+        default=None,
+        metavar="N",
+        help="leave out armour whose maximum defence is below N",
+    )
+    filters.add_argument(
+        "--exclude-slotless",
+        action="store_true",
+        help="leave out armour with no decoration slots",
+    )
+    filters.add_argument(
+        "--exclude-resistance",
+        action="append",
+        default=[],
+        metavar="RULE",
+        help="leave out armour matching a resistance rule such as 'fire<0' or "
+        "'dragon>=3'; operators < <= = >= > (repeatable)",
+    )
     parser.add_argument(
         "--save-profile",
         metavar="FILE",
@@ -1964,6 +2070,7 @@ def main() -> None:
 
     from dataclasses import replace as updated
 
+    from gear_filters import apply_filters, pin_conflicts
     from load_data import load_talismans
     from optimiser_report import render_console, write_yaml
     from search_profile import (
@@ -2010,8 +2117,13 @@ def main() -> None:
             weapon_slots = list(parse_weapon_slots(args.weapon_slots))
         except ValueError as exc:
             parser.error(f"--weapon-slots: {exc}")
+    try:
+        profile_filters = _cli_filters(args, profile.filters)
+    except ValueError as exc:
+        parser.error(str(exc))
     profile = updated(
         profile,
+        filters=profile_filters,
         pins=pins,
         # Exclusions add to the profile's rather than replace them: a
         # command-line exclusion reads as "and also leave this out".
@@ -2035,6 +2147,19 @@ def main() -> None:
     if problems:
         parser.error("; ".join(problems))
 
+    # Before the custom talismans join: the tier filter is for craftable
+    # charms, whose names carry the tier (see gear_filters.apply_filters).
+    base_game = game
+    filtered = apply_filters(game, profile.filters)
+    game = filtered.game
+    conflicts = pin_conflicts(base_game, filtered, profile.pins)
+    if conflicts:
+        parser.error("; ".join(conflicts))
+    # Filtered pieces reach the search as exclusions, kept apart from the
+    # user's own so the header lists what was excluded by name, not the
+    # hundreds of pieces a single filter can remove.
+    excluded_pieces = sorted(set(profile.exclude_pieces) | set(filtered.removed))
+
     talismans_path = profile.custom_talismans_path()
     if talismans_path is not None:
         try:
@@ -2055,7 +2180,7 @@ def main() -> None:
             scoring,
             pinned_pieces=profile.pins,
             excluded_sets=profile.exclude_sets,
-            excluded_pieces=profile.exclude_pieces,
+            excluded_pieces=excluded_pieces,
             weapon_slots=tuple(profile.weapon_slots),
         )
     except ValueError as exc:
@@ -2092,7 +2217,7 @@ def main() -> None:
         pinned_pieces=profile.pins,
         strict=strict,
         excluded_sets=profile.exclude_sets,
-        excluded_pieces=profile.exclude_pieces,
+        excluded_pieces=excluded_pieces,
         weapon_slots=tuple(profile.weapon_slots),
         progress=_terminal_progress() if sys.stderr.isatty() else None,
     )
@@ -2121,6 +2246,7 @@ def main() -> None:
             strict=strict,
             reasons=reasons,
             excluded=profile.exclude_sets + profile.exclude_pieces,
+            filters=profile.filters.describe(),
         )
     )
 

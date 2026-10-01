@@ -23,14 +23,32 @@ One deliberate choice: it does not return ten near-identical builds. Results are
    - tick a **Gogma weapon** set bonus or group skill if your weapon contributes a piece toward one of them, see [How it works](#how-it-works) for what that credit buys;
    - set your weapon's **Weapon Slots** so weapon skills get weapon jewels, see [Weapon slots](#weapon-slots);
    - rule armour out with **Exclude Gear…**, see [Excluding armour](#excluding-armour);
+   - leave whole categories out on the **Filters** tab, γ sets, Low Rank, a talisman tier, armour weak to an element, or turn transcending off, see [Filters tab](#filters-tab);
    - load custom talismans built on the other tab, so they join the optimiser's charm pool without touching `craftable_talismans.yaml`;
    - adjust *Reserved slots* (default 2) for the resistance jewels you plan to slot yourself per hunt. The set's smallest slots are held back, so they're size 1 unless the set runs out of those first.
 
 5. While the search runs, a progress bar under the Run button shows which phase it's in, and **Cancel** stops it within a fraction of a second. Results open in a second window with Previous/Next navigation. **Copy This Set** copies the set's text to the clipboard, and **Save All Sets…** writes every set to `optimiser_outputs/`, either as YAML (the same structure the CLI writes) or with a `.txt` name as the CLI's console text, header included. The header records which skills file the weights came from and notes when the run used edits you hadn't saved yet, so the export never points at a file that doesn't hold the weights actually used.
 
+### Filters Tab
+
+Exclusions name sets and pieces one at a time; filters name characteristics, so they keep working when the data gains pieces that match. Each row has an **Include** and an **Exclude** box and starts on Include, so a fresh Filters tab changes nothing:
+
+| Group | Rows |
+| --- | --- |
+| Armour sets | Alpha (α), Beta (β) and Gamma (γ) sets; High Rank and Low Rank armour; rarity 1 to 8 |
+| Armour pieces | Pieces with no decoration slots; pieces whose maximum defence is below a number you set |
+| Talismans | Craftable talismans by tier, the numeral their name ends in: tier III is every "… Charm III" |
+| Resistances | Per element, armour whose resistance compares a chosen way (`<`, `≤`, `=`, `≥`, `>`) with a value, e.g. fire `<` 0 |
+
+**Enable transcendence**, on by default, is the one that changes pieces rather than removing them. Off, every rarity 5 and 6 piece counts with its slots and maximum defence from before Armor Transcending (see [Data scope](#data-scope)), for armour you haven't upgraded; the minimum-defence row then compares against those lower values too. A line under the heading counts how many pieces and talismans the current filters leave out, so a filter's reach shows before running rather than as an empty result.
+
+Low Rank sets carry no α/β/γ letter, so the variant rows never touch them. The tier rows only filter the craftable talismans: a custom talisman's name is whatever you typed, so reading a tier from it would be a guess. Resistances are the same on every piece of a set in the data, which is what lets a piece-level rule read as "sets weak to fire".
+
+A filtered piece reaches the search as an exclusion, so everything that already handled exclusions handles filters: the pre-search proofs say a requirement is only met by excluded armour, and a pin on a filtered piece is refused, as a pinned-and-excluded piece is, rather than one instruction quietly winning. Results and exports list the active filters under the exclusions. The CLI takes the same filters as `--exclude-variant`, `--exclude-rank`, `--exclude-rarity`, `--exclude-talisman-tier`, `--no-transcendence`, `--min-defense`, `--exclude-slotless` and `--exclude-resistance 'fire<0'`, each adding to a profile's.
+
 ### Search Profiles
 
-**Load Profile…** and **Save Profile…** on the Skills File row keep a whole build goal in one file under `profiles/`: the weights plus every setting on the tab, pins, exclusions, weapon slots, Gogma choices, reserve, relax and the loaded custom talisman file. The CLI reads the same file with `--profile`, and `--save-profile` writes one from any run, including a plain `--skills-db` run, so an existing weighted file converts in a single command.
+**Load Profile…** and **Save Profile…** on the Skills File row keep a whole build goal in one file under `profiles/`: the weights plus every setting on the tab, pins, exclusions, weapon slots, Gogma choices, reserve, relax, the loaded custom talisman file and the Filters tab. Only the filters that differ from Include are written, so a profile saved before filters existed loads unchanged. The CLI reads the same file with `--profile`, and `--save-profile` writes one from any run, including a plain `--skills-db` run, so an existing weighted file converts in a single command.
 
 A profile stores only the weights of the weighted skills, against `skills_default.yaml`, never a copy of the skill data. That's the difference from a weighted skills file, which duplicates every skill's description and levels: after a data update the weighted file still carries the old text and knows nothing of new skills, while a profile picks up the new data the next time it loads. Paths are stored relative to the repo, so a profile keeps working if you move the checkout.
 
@@ -66,6 +84,7 @@ python optimiser.py --skills-db skills_weighted.yaml --count 10
 | `--gogma-set`, `--gogma-group` | none | Credit one piece toward a set bonus or group skill, the same as the GUI's Gogma selectors |
 | `--talismans` | none | A custom talisman file to add to the charm pool |
 | `--relax` | off | Return sets that miss a mandatory skill instead of returning fewer |
+| `--exclude-variant`, `--exclude-rank`, `--exclude-rarity`, `--exclude-talisman-tier`, `--exclude-resistance`, `--exclude-slotless`, `--min-defense`, `--no-transcendence` | none | The [Filters tab](#filters-tab) on the command line; repeatable where it makes sense, and added to a profile's filters |
 | `--save-profile` | none | Also save the weights and settings this run used as a profile |
 
 **Pass `--skills-db` or `--profile` every time.** The default points at a weighted file that isn't committed (everything under the output folders is gitignored), so a bare `python optimiser.py` stops with a usage error naming the missing file. Input `skills_weighted.yaml` writes results to `optimiser_outputs/weighted_gear_sets.yaml`. A `--count` or `--beam` below 1, or a negative `--reserve`, is rejected up front; each of these used to produce an empty result with no explanation.
@@ -192,6 +211,7 @@ The GUI tests never open a window: they call `SkillsGui` methods on stand-in obj
 | `optimiser_report.py` | Rendering only: the console text, the inline result view for the GUI window, and YAML export of results |
 | `check_data.py` | Report-only comparison of the local data with the Wilds API; see [Checking the data](#checking-the-data-after-a-title-update) |
 | `update_check.py` | The start-up comparison of the local commit with GitHub; see [Update check](#update-check) |
+| `gear_filters.py` | The Filters tab's logic: `GearFilters`, turning transcending off, and the piece names a set of filters excludes |
 | `search_profile.py` | The search profile format: loading with shape checks, `profile_problems` against the game data, saving |
 | `load_data.py` | Typed dataclasses (`Skill`, `ArmorPiece`, `Talisman`, `Decoration`) and loaders with validation (it refuses to treat a results file as a skills DB, for example). Run it directly for record counts |
 | `skills_default.yaml` | Every skill: armor, weapon, set bonus, group and food, with descriptions, max level, per-level effects, scaling class and per-source URLs. `weight`/`level_weight` start at 0 placeholders |
