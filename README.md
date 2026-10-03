@@ -24,7 +24,7 @@ The window follows the results window's design: a title band carrying the loaded
 4. Optional settings before running:
    - tick a **Gogma weapon** set bonus or group skill if your weapon contributes a piece toward one of them, see [How it works](#how-it-works) for what that credit buys;
    - set your weapon's **Weapon Slots** so weapon skills get weapon jewels, see [Weapon slots](#weapon-slots);
-   - rule armour out with **Exclude Gear…**, see [Excluding armour](#excluding-armour);
+   - rule armour out with **Exclude Gear…** on the Filters tab, see [Excluding armour](#excluding-armour);
    - leave whole categories out on the **Filters** tab, γ sets, Low Rank, a talisman tier, armour weak to an element, or turn transcending off, see [Filters tab](#filters-tab), and set minimum total defence and resistances in its **Targets** box, see [Build targets](#build-targets);
    - load custom talismans built on the other tab, so they join the optimiser's charm pool without touching `craftable_talismans.yaml`;
    - adjust *Reserved slots* (default 2) for the resistance jewels you plan to slot yourself per hunt. The set's smallest slots are held back, so they're size 1 unless the set runs out of those first.
@@ -141,7 +141,7 @@ A weapon's own built-in skills aren't modelled yet; only its slots are.
 
 ### Excluding Armour
 
-The opposite of pinning: armour the search must never touch, such as sets you haven't unlocked or pieces you won't wear. On the CLI, `--exclude-set "Gore α"` or `--exclude-piece "Lagiacrus Helm β"`, each repeatable. In the GUI, **Exclude Gear…** in the Fixed Gear panel opens a filterable tree of every set with its pieces underneath; double-click a row, or select rows and press Space, to toggle them. Sets and single pieces are tracked separately, so re-including a set you excluded doesn't forget the pieces you'd excluded one by one inside it.
+The opposite of pinning: armour the search must never touch, such as sets you haven't unlocked or pieces you won't wear. On the CLI, `--exclude-set "Gore α"` or `--exclude-piece "Lagiacrus Helm β"`, each repeatable. In the GUI, **Exclude Gear…** on the Filters tab opens a filterable tree of every set with its pieces underneath; double-click a row, or select rows and press Space, to toggle them. Sets and single pieces are tracked separately, so re-including a set you excluded doesn't forget the pieces you'd excluded one by one inside it.
 
 Exclusions affect everything that asks what armour can supply, not just the search: the unreachable-skill warning and the pre-search proofs both say "only excluded armour provides it" rather than blaming the data. Excluding every piece for a slot is reported before the search starts, requirements or not. A piece that is both pinned and excluded is refused, on the CLI and in the GUI alike, because either resolution would silently ignore one of the two instructions.
 

@@ -237,9 +237,9 @@ HINTS = {
     ),
     "profile": (
         "Open reads a weighted skills file. A profile instead holds the "
-        "weights and every setting on the Skill Weights tab - pins, "
-        "exclusions, weapon slots, Gogma, reserve and relax - plus the Filters "
-        "tab and the custom talismans loaded for the optimiser, in one file, "
+        "weights and every setting on the Skill Weights tab - pins, weapon "
+        "slots, Gogma, reserve and relax - plus the Filters tab with its "
+        "exclusions and the custom talismans loaded for the optimiser, in one file, "
         "applied to the current skill data."
     ),
     "talismans": (
@@ -1103,6 +1103,22 @@ class SkillsGui:
         ).grid(row=row, column=3, sticky=tk.W, padx=(6, 0))
         self.min_defense_var.trace_add("write", lambda *_a: self._refresh_filter_summary())
 
+        # Exclusions name sets and pieces one by one where the rows around
+        # them name characteristics, but both answer "what may the search
+        # not use", so the button lives here rather than beside the pins.
+        exclude = self._card(middle, "Exclude Gear")
+        exclude.pack(side=tk.TOP, fill=tk.X, pady=(8, 0))
+        _hint(exclude, "exclude", wrap=300).pack(side=tk.TOP, anchor=tk.W)
+        exclude_row = ttk.Frame(exclude)
+        exclude_row.pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
+        ttk.Button(
+            exclude_row, text="Exclude Gear...", command=self._open_exclusions
+        ).pack(side=tk.LEFT)
+        self.exclusion_summary_var = tk.StringVar(value=self._exclusion_summary())
+        ttk.Label(
+            exclude_row, textvariable=self.exclusion_summary_var, style="Hint.TLabel"
+        ).pack(side=tk.LEFT, padx=(8, 0))
+
         transcend = self._card(middle, "Transcendence")
         transcend.pack(side=tk.TOP, fill=tk.X, pady=(8, 0))
         _hint(transcend, "transcendence", wrap=300).pack(side=tk.TOP, anchor=tk.W)
@@ -1406,21 +1422,6 @@ class SkillsGui:
         self.pin_vars[TALISMAN_SLOT] = var
         self.pin_detail_labels[TALISMAN_SLOT] = detail
         self._refresh_talisman_pin_options()
-
-        ttk.Separator(gear, orient=tk.HORIZONTAL).pack(
-            side=tk.TOP, fill=tk.X, pady=(8, 5)
-        )
-
-        _hint(gear, "exclude", wrap=330).pack(side=tk.TOP, anchor=tk.W)
-        exclude_row = ttk.Frame(gear)
-        exclude_row.pack(side=tk.TOP, anchor=tk.W, pady=(GAP, 0))
-        ttk.Button(
-            exclude_row, text="Exclude Gear...", command=self._open_exclusions
-        ).pack(side=tk.LEFT)
-        self.exclusion_summary_var = tk.StringVar(value=self._exclusion_summary())
-        ttk.Label(
-            exclude_row, textvariable=self.exclusion_summary_var, style="Hint.TLabel"
-        ).pack(side=tk.LEFT, padx=(8, 0))
 
         ttk.Separator(gear, orient=tk.HORIZONTAL).pack(
             side=tk.TOP, fill=tk.X, pady=(8, 5)
@@ -2853,7 +2854,7 @@ class SkillsGui:
                 messagebox.showerror(
                     "Run Optimiser",
                     f"{name} is pinned to {piece_type} but also excluded. Unpin "
-                    "it or include it again under Exclude Gear.",
+                    "it or include it again under Exclude Gear on the Filters tab.",
                 )
                 return
 
